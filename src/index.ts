@@ -3,6 +3,9 @@ import 'dotenv/config';
 import axios from 'axios';
 import express from 'express';
 import mongoose from 'mongoose';
+import GuildModel from './models/guild';
+import CH from './api/clickerheroes';
+import MemberModel from './models/member';
 
 const API_ENDPOINT = "https://discord.com/api/v10";
 
@@ -26,8 +29,16 @@ app.get('/', (req, res) => {
     }).catch(error => res.send(error));
 });
 
-app.get('/:id', (req, res) => {
+app.get('/:id', async (req, res) => {
     const guild_id = req.params.id;
+    const dbGuild = await GuildModel.findOne({ guild_id: guild_id });
+    if(!dbGuild) {
+        res.send("Error!");
+        return;
+    }
+
+    const guildInfo = await CH.getGuildInfo(dbGuild.user_uid, dbGuild.password_hash);
+
     axios({
         method: 'get',
         url: `${API_ENDPOINT}/guilds/${guild_id}/members`,
@@ -37,13 +48,25 @@ app.get('/:id', (req, res) => {
         headers: {
             'Authorization': `Bot ${process.env.TOKEN}`
         }
-    }).then(response => {
-        const items: { username: string, avatar: string }[] = [];
+    }).then(async response => {
+        const items: any[] = [];
         for(const member of response.data) {
-            
+            const dbMember = await MemberModel.findOne({ guild_uid: member.user.id });
+            if(!dbMember) continue;
+
+            let clanMember: CH.GuildInfoResultMember | null = null;
+            for(const o of Object.values(guildInfo.guildMembers)) {
+                if(o.uid == dbMember.clan_uid) {
+                    clanMember = o;
+                    break;
+                }
+            }
+            if(!clanMember) continue;
+
             items.push({ 
                 username: member.nick || member.user.username,
-                avatar: `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.png`
+                avatar: `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.png`,
+                clan_username: clanMember.nickname
             });
         }
         res.render(__dirname + "/../views/members.ejs", { items: items });

@@ -10,7 +10,7 @@
             <% items.forEach(function(item) { %>
             <li style="display: flex;align-items: center;">
                 <img width=64 height=64 src=<%= item.avatar%>>
-                <p style="margin: 0;"><%= item.username %></p>
+                <p style="margin: 0;"><%= item.username %> => <%= item.clan_username %></p>
             </li>
             <% }); %>
         </ul>
