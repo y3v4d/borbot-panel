@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Admin Panel</title>
+    </head>
+    <body>
+        <h1>Clicker Heroes Bot Admin Panel</h1>
+        <h2>Guilds</h2>
+        <ul>
+            <% items.forEach(function(item) { %>
+            <li><a href=<%= item.id%>><%= item.name %></a></li>
+            <% }); %>
+        </ul>
+    </body>
+</html>
