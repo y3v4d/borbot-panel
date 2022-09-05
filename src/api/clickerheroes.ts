@@ -104,7 +104,7 @@ namespace CH {
     export async function getGuildInfo(uid: string, passwordHash: string) {
         const data = await post('getGuildInfo', { uid: uid, passwordHash: passwordHash });
 
-        if(!data.success) throw new Error(`getGuildInfo failed: ${data.reason}`);
+        if(!data.success) return null;
         return data.result as GuildInfoResult;
     }
 
