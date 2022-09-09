@@ -1,0 +1,53 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+li {
+    padding-bottom: 10px;
+}
+
+header {
+    padding-left: 16px;
+    background-color: #3B4252;
+    color: #D8DEE9;
+}
+
+nav {
+    padding-top: 10px;
+    width: 5rem;
+    background-color: #3B4252;
+}
+
+#main-div {
+    flex-grow: 1;
+}
+
+.center-section {
+    display: flex;
+    flex-direction: row;
+
+    flex-grow: 1;
+    
+    background-color: #2E3440;
+    width: 100%;
+}
+
+.guild_icon {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+
+    border-radius: 50%;
+}

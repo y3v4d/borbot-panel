@@ -1,15 +1,23 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Admin Panel</title>
+        <title>Borbot Panel</title>
+
+        <script type="text/javascript" src="http://localhost:3000/script.js"></script>
+        <link rel="stylesheet" href="http://localhost:3000/style.css">
     </head>
     <body>
-        <h1>Clicker Heroes Bot Admin Panel</h1>
-        <h2>Guilds</h2>
-        <ul>
-            <% items.forEach(function(item) { %>
-            <li><a href=<%= item.id%>><%= item.name %></a></li>
-            <% }); %>
-        </ul>
+        <header>
+            <h1>BORBOT</h1>
+        </header>
+        <section class="center-section">
+            <nav>
+                <ul id="guilds_list">
+                </ul>
+            </nav>
+            <div id="main-div">
+                <%- include(page) %>
+            </div>
+        </section>
     </body>
 </html>

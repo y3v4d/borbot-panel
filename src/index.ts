@@ -3,34 +3,110 @@ import 'dotenv/config';
 import axios from 'axios';
 import express from 'express';
 import mongoose, { ObjectId } from 'mongoose';
-import GuildModel from './models/guild';
+import GuildModel, { IGuild } from './models/guild';
 import MemberModel, { IMember } from './models/member';
 import ScheduleModel from './models/schedule';
 import DC from './api/discord';
 import bodyParser from 'body-parser';
+import Clan from './shared/clan';
+import session from 'express-session';
 
-const API_ENDPOINT = "https://discord.com/api/v10";
+declare module 'express-session' {
+    interface SessionData {
+        flag?: number
+    }
+}
 
 const app = express();
 app.set('view engine', 'ejs');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(__dirname + "/../public"));
+app.use(session({
+    secret: process.env.SESSION_SECRET!
+}));
 
-app.get('/', (req, res) => {
+const API_ENDPOINT = "https://discord.com/api/v10";
+
+app.get('/', async (req, res) => {
+    res.render(`${__dirname}/../views/index.ejs`, { page: 'empty' });
+})
+
+app.get('/guild/:id', async (req, res) => {
+    const guild_id = req.params.id;
+    const guild_info = await DC.request(`guilds/${guild_id}`);
+    if(guild_info.code != undefined) {
+        res.send("Didn't find guild!");
+        return;
+    }
+
+    const db_guild = await GuildModel.findOne({ guild_id: guild_id });
+    const flag = req.session.flag;
+    req.session.flag = 0;
+
+    res.render(`${__dirname}/../views/index.ejs`, {
+        page: 'guild',
+        guild_id: guild_id,
+        is_setup: db_guild != null,
+        login_error: flag 
+    });
+});
+
+app.post('/guild/:id/setup', async (req, res) => {
+    const guild_id = req.params.id;
+    const db_guild = await GuildModel.findOne({ guild_id: guild_id });
+    if(db_guild) {
+        console.warn("Guild already setup!");
+        res.redirect(`/guild/${guild_id}`);
+        return;
+    }
+
+    const uid = req.body.uid;
+    const password_hash = req.body.pwd;
+    
+    const isValid = await Clan.validate(uid, password_hash);
+    if(!isValid) {
+        req.session.flag = 1;
+        res.redirect(`/guild/${guild_id}`);
+        return;
+    }
+
+    const schema: IGuild = {
+        guild_id: guild_id,
+        user_uid: uid,
+        password_hash: password_hash
+    };
+
+    await (new GuildModel(schema)).save();
+    res.redirect(`/guild/${guild_id}`);
+});
+
+app.post('/guild/:id/unsetup', async (req, res) => {
+    const guild_id = req.params.id;
+    const db_guild = await GuildModel.findOne({ guild_id: guild_id });
+    if(!db_guild) {
+        console.warn("Guild already unsetup!");
+        res.redirect(`/guild/${guild_id}`);
+        return;
+    }
+
+    await db_guild.delete();
+    res.redirect(`/guild/${guild_id}`);
+});
+
+app.get('/guilds', (req, res) => {
     axios({
-        method: 'get',
         url: `${API_ENDPOINT}/users/@me/guilds`,
+        method: 'get',
         params: { limit: 100 },
         headers: {
             'Authorization': `Bot ${process.env.TOKEN}`
         }
     }).then(response => {
-        const items: { name: string, id: string }[] = [];
+        const items: any[] = [];
         for(const guild of response.data) {
-            items.push({ name: guild.name, id: guild.id });
+            items.push({ name: guild.name, id: guild.id, icon: guild.icon });
         }
-        res.render(__dirname + "/../views/index.ejs", { items: items });
+        res.send(items);
     }).catch(error => res.send(error));
 });
 
@@ -133,8 +209,8 @@ app.get('/:id/schedule', async (req, res) => {
     });
 });
 
-app.get('/:id', async (req, res) => {
-    res.send(req.params.id);
+//app.get('/:id', async (req, res) => {
+    //res.send(req.params.id);
     /*const guild_id = req.params.id;
     const dbGuild = await GuildModel.findOne({ guild_id: guild_id });
     if(!dbGuild) {
@@ -176,7 +252,9 @@ app.get('/:id', async (req, res) => {
         }
         res.render(__dirname + "/../views/members.ejs", { items: items });
     }).catch(error => res.send(error));*/
-});
+//});
+
+app.use(express.static(__dirname + "/../public"));
 
 mongoose.connect(process.env.MONGODB_URI!).then(() => {
     console.log("Connected to MongoDB.");
