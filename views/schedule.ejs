@@ -1,32 +1,21 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Admin Panel</title>
-        <script src="/test.js" type="text/javascript"></script>
-    </head>
-    <body>
-        <h1>Clicker Heroes Bot Admin Panel</h1>
-        <h2>Schedule</h2>
-        <h3>Start day: <%= start_day%></h3>
-        <h3>Next cycle: <%= next_cycle%></h3>
-        <form id="schedule-form" action="/<%= guild_id%>/schedule" method="post">
-            <ul id="list-schedule">
-                <% items.forEach(function(item) { %>
-                    <li>
-                        <p><%= item.index %></p>
-                        <select name="<%= item.index %>" form="schedule-form">
-                            <% members.forEach(function(member) { %>
-                                <% if(member.guild_uid === item.selected_uid) { %>
-                                    <option value=<%= member.guild_uid%> selected><%= member.name%></option>
-                                <% } else { %>
-                                    <option value=<%= member.guild_uid%>><%= member.name%></option>
-                                <% } %>
-                            <% }); %>
-                        </select>
-                    </li>
-                <% }); %>
-            </ul>
-            <button type="submit">Test Form</button>
-        </form>
-    </body>
-</html>
+<h3>Start day: <%= start_day%></h3>
+<h3>Next cycle: <%= next_cycle%></h3>
+<form id="schedule-form" action="/<%= guild_id%>/schedule" method="post">
+    <ul id="list-schedule">
+        <% items.forEach(function(item) { %>
+            <li>
+                <p><%= item.index %></p>
+                <select name="<%= item.index %>" form="schedule-form">
+                    <% members.forEach(function(member) { %>
+                        <% if(member.guild_uid === item.selected_uid) { %>
+                            <option value=<%= member.guild_uid%> selected><%= member.name%></option>
+                        <% } else { %>
+                            <option value=<%= member.guild_uid%>><%= member.name%></option>
+                        <% } %>
+                    <% }); %>
+                </select>
+            </li>
+        <% }); %>
+    </ul>
+    <button type="submit">Test Form</button>
+</form>

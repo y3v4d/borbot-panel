@@ -7,15 +7,18 @@
         <link rel="stylesheet" href="http://localhost:3000/style.css">
     </head>
     <body>
-        <header>
+        <header class="title">
             <h1>BORBOT</h1>
         </header>
-        <section class="center-section">
-            <nav>
-                <ul id="guilds_list">
+        <section class="center">
+            <nav class="guilds">
+                <ul class="guilds-list">
                 </ul>
             </nav>
-            <div id="main-div">
+            <% if(locals.show_categories) { %>
+                <%- include('categories') %>
+            <% } %>
+            <div class="main">
                 <%- include(page) %>
             </div>
         </section>

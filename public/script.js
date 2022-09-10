@@ -6,12 +6,13 @@ window.onload = () => {
         method: 'GET'
     }).then(res => res.json())
     .then(data => {
-        const list = document.getElementById('guilds_list');
+        const list = document.getElementsByClassName('guilds-list')[0];
         for(const entry of data) {
             const item = document.createElement('li');
             const a = document.createElement('a');
             const img = document.createElement('img');
-            img.className = 'guild_icon';
+            item.className = 'guilds-list__item';
+            img.className = 'guilds-list__icon';
 
             if(entry.icon) {
                 img.src = `${CDN_ENDPOINT}/${entry.id}/${entry.icon}.png?size=64`;

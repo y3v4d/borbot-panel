@@ -1,0 +1,16 @@
+<aside class="categories">
+    <img class="categories__icon" src=<%= guild.icon%>>
+    <p class="categories__name"><%= guild.name%></p>
+    <ul>
+        <li>
+            <a href="/guild/<%= guild.id%>/members">
+                <button>Members</button>
+            </a>
+        </li>
+        <li>
+            <a href="/guild/<%= guild.id%>/schedule">
+                <button>Schedule</button>
+            </a>
+        </li>
+    </ul>
+</aside>

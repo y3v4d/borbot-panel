@@ -1,9 +1,4 @@
-<% if(is_setup) { %>
-    <p>Guild is setup!</p>
-    <form id="unsetup-form" action="/guild/<%= guild_id%>/unsetup" method="post">
-        <input type="submit">
-    </form>
-<% } else { %>
+<% if(!is_setup) { %>
     <% if(login_error) { %>
         <p>Invalid login</p>
     <% } %>

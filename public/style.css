@@ -8,33 +8,13 @@ body {
     flex-direction: column;
 }
 
-ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
-
-li {
-    padding-bottom: 10px;
-}
-
-header {
+.title {
     padding-left: 16px;
     background-color: #3B4252;
     color: #D8DEE9;
 }
 
-nav {
-    padding-top: 10px;
-    width: 5rem;
-    background-color: #3B4252;
-}
-
-#main-div {
-    flex-grow: 1;
-}
-
-.center-section {
+.center {
     display: flex;
     flex-direction: row;
 
@@ -44,10 +24,35 @@ nav {
     width: 100%;
 }
 
-.guild_icon {
+.guilds {
+    padding-top: 10px;
+    width: 5rem;
+    background-color: #3B4252;
+}
+
+.guilds-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.guilds-list__item {
+    padding-bottom: 10px;
+}
+
+.guilds-list__icon {
     display: block;
     margin-left: auto;
     margin-right: auto;
 
     border-radius: 50%;
+}
+
+.categories {
+    width: 15rem;
+    background-color: #434C5E;
+}
+
+.main {
+    flex-grow: 1;
 }
