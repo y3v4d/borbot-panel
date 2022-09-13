@@ -1,26 +1,29 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Borbot Panel</title>
 
-        <script type="text/javascript" src="http://localhost:3000/script.js"></script>
-        <link rel="stylesheet" href="http://localhost:3000/style.css">
-    </head>
-    <body>
-        <header class="title">
-            <h1>BORBOT</h1>
-        </header>
-        <section class="center">
-            <nav class="guilds">
-                <ul class="guilds-list">
-                </ul>
-            </nav>
-            <% if(locals.show_categories) { %>
-                <%- include('categories') %>
-            <% } %>
-            <div class="main">
-                <%- include(page) %>
-            </div>
-        </section>
-    </body>
+<head>
+    <title>Borbot Panel</title>
+
+    <script type="text/javascript" src="http://localhost:3000/script.js"></script>
+    <link rel="stylesheet" href="http://localhost:3000/style.css">
+</head>
+
+<body>
+    <header class="title">
+        <h1>BORBOT</h1>
+    </header>
+    <section class="center">
+        <nav class="guilds">
+            <ul class="guilds-list">
+            </ul>
+        </nav>
+        <% if(locals.show_categories) { %>
+            <%- include('categories') %>
+                <% } %>
+                    <div class="main">
+                        <%- include(page) %>
+                    </div>
+    </section>
+</body>
+
 </html>

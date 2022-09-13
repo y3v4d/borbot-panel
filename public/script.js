@@ -1,7 +1,7 @@
 const CDN_ENDPOINT = 'https://cdn.discordapp.com/icons';
 const UI_ENDPOINT = 'https://ui-avatars.com/api';
 
-window.onload = () => {
+window.addEventListener('load', () => {
     fetch('http://localhost:3000/guilds', {
         method: 'GET'
     }).then(res => res.json())
@@ -34,4 +34,4 @@ window.onload = () => {
             list.appendChild(item);
         }
     });
-}
+});

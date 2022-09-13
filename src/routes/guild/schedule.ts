@@ -26,16 +26,31 @@ function getGuildIconURL(guild: any, size = 64) {
 }
 
 const ScheduleRouter = Router({ mergeParams: true });
-
 ScheduleRouter.get('/', async (req, res) => {
+    const guild_id = (req.params as any).id;
+
+    const guild_info = await DC.request(`guilds/${guild_id}`);
+    const guild = {
+        id: guild_info.id,
+        name: guild_info.name,
+        icon: getGuildIconURL(guild_info)
+    };
+
+    res.render(__dirname + "/../../../views/index.ejs", {
+        page: "schedule",
+        show_categories: true,
+        guild: guild,
+        guild_id: guild_id
+    });
+});
+
+ScheduleRouter.get('/get', async (req, res) => {
     const guild_id = (req.params as any).id;
     const db_guild = await GuildModel.findOne({ guild_id: guild_id });
     if(!db_guild) {
         res.send("Guild isn't setup...");
         return;
     }
-
-    await MemberModel.find();
 
     const dbMembers = await MemberModel.find({ guild_id: guild_id });
     if(!dbMembers) {
@@ -49,7 +64,6 @@ ScheduleRouter.get('/', async (req, res) => {
         res.send("Error retrieving schedule!");
         return;
     }
-    console.log("Fetched database!");
 
     const users: any[] = await DC.request(`guilds/${guild_id}/members?limit=100`);
     const members: any[] = [];
@@ -60,37 +74,26 @@ ScheduleRouter.get('/', async (req, res) => {
             return;
         }
 
-        members.push({ name: guildUser.nick || guildUser.user.username, guild_uid: guildUser.user.id });
+        members.push({ 
+            uid: guildUser.user.id,
+            name: guildUser.nick || guildUser.user.username
+        });
     }
-    console.log("Pushed members!");
 
-    const items: any[] = [];
+    const entries: any[] = [];
     for(const entry of dbSchedule.map) {
-        items.push({ selected_uid: entry.member.guild_uid, index: entry.index });
+        entries.push({ uid: entry.member.guild_uid, index: entry.index });
     }
-    items.sort((self, other) => {
+    entries.sort((self, other) => {
         return self.index - other.index;
     });
 
     const MS_IN_DAY = 86400000;
-    console.log("Completed all!");
-
-    const guild_info = await DC.request(`guilds/${guild_id}`);
-    const guild = {
-        id: guild_info.id,
-        name: guild_info.name,
-        icon: getGuildIconURL(guild_info)
-    };
-
-    res.render(__dirname + "/../../../views/index.ejs", {
-        page: "schedule",
-        show_categories: true,
-        guild: guild,
-        start_day: dbSchedule.start_day,
+    res.send({
+        start: dbSchedule.start_day,
         next_cycle: new Date(new Date(dbSchedule.start_day).getTime() + 10 * MS_IN_DAY),
-        items: items,
-        members: members,
-        guild_id: guild_id
+        entries: entries,
+        members: members
     });
 });
 
