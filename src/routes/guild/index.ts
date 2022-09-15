@@ -44,14 +44,21 @@ GuildRouter.get('/:id', async (req, res) => {
         icon: getGuildIconURL(guild_info)
     };
 
-    res.render(`${__dirname}/../../../views/index.ejs`, {
+    res.send({
+        id: guild_info.id,
+        name: guild_info.name,
+        icon: getGuildIconURL(guild_info),
+        is_setup: db_guild != null
+    });
+
+    /*res.render(`${__dirname}/../../../views/index.ejs`, {
         page: 'guild',
         show_categories: true,
         guild: guild,
         guild_id: guild_id,
         is_setup: db_guild != null,
         login_error: flag 
-    });
+    });*/
 });
 
 GuildRouter.post('/:id/setup', async (req, res) => {

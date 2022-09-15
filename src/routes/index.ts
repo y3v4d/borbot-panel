@@ -4,9 +4,6 @@ import { Router } from "express";
 const API_ENDPOINT = "https://discord.com/api/v10";
 
 const MainRouter = Router();
-MainRouter.get('/', async (req, res) => {
-    res.render(`${__dirname}/../../views/index.ejs`, { page: 'empty' });
-});
 
 MainRouter.get('/guilds', (req, res) => {
     axios({

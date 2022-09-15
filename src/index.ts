@@ -26,11 +26,15 @@ app.use(session({
     secret: process.env.SESSION_SECRET!
 }));
 
-app.use('/', MainRouter);
-app.use('/guild', GuildRouter);
-app.use('/guild/:id/schedule', ScheduleRouter);
-
 app.use(express.static(__dirname + "/../public"));
+
+app.use('/api', MainRouter);
+app.use('/api/guilds', GuildRouter);
+app.use('/api/guilds/:id/schedule', ScheduleRouter);
+
+app.use(/^\/(?!api)(.*)$/, (req, res) => {
+    res.sendFile(`index.html`, { root: "./public" });
+});
 
 mongoose.connect(process.env.MONGODB_URI!).then(() => {
     console.log("Connected to MongoDB.");

@@ -28,24 +28,6 @@ function getGuildIconURL(guild: any, size = 64) {
 const ScheduleRouter = Router({ mergeParams: true });
 ScheduleRouter.get('/', async (req, res) => {
     const guild_id = (req.params as any).id;
-
-    const guild_info = await DC.request(`guilds/${guild_id}`);
-    const guild = {
-        id: guild_info.id,
-        name: guild_info.name,
-        icon: getGuildIconURL(guild_info)
-    };
-
-    res.render(__dirname + "/../../../views/index.ejs", {
-        page: "schedule",
-        show_categories: true,
-        guild: guild,
-        guild_id: guild_id
-    });
-});
-
-ScheduleRouter.get('/get', async (req, res) => {
-    const guild_id = (req.params as any).id;
     const db_guild = await GuildModel.findOne({ guild_id: guild_id });
     if(!db_guild) {
         res.send("Guild isn't setup...");
@@ -90,6 +72,7 @@ ScheduleRouter.get('/get', async (req, res) => {
 
     const MS_IN_DAY = 86400000;
     res.send({
+        id: guild_id,
         start: dbSchedule.start_day,
         next_cycle: new Date(new Date(dbSchedule.start_day).getTime() + 10 * MS_IN_DAY),
         entries: entries,
