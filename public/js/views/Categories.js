@@ -1,5 +1,5 @@
-function Categories(id, name, icon) {
-    return makeDOM(`
+function Categories(params) {
+    let make = (id, icon, name) => makeDOM(`
         <aside class="categories">
             <img class="categories__icon" src=${icon}>
             <p class="categories__name">${name}</p>
@@ -17,4 +17,18 @@ function Categories(id, name, icon) {
             </ul>
         </aside>
     `);
+
+    if(params) {
+        return make(params.id, params.icon, params.name)
+    } else {
+        const container = makeDOM(`<aside class="categories"></aside>`)
+
+        fetch(`http://localhost:3000/api/guilds/${guild_id}`)
+        .then(res => res.json())
+        .then(data => {
+            container.replaceWith(make(data.id, data.icon, data.name));
+        });
+
+        return container;
+    }
 }

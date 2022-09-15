@@ -52,6 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     navigateTo(window.location.href);
-    
+
     document.querySelector(".guilds").appendChild(GuildList());
 });

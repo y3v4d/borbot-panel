@@ -30,7 +30,7 @@ ScheduleRouter.get('/', async (req, res) => {
     const guild_id = (req.params as any).id;
     const db_guild = await GuildModel.findOne({ guild_id: guild_id });
     if(!db_guild) {
-        res.send("Guild isn't setup...");
+        res.send({ error: 301, msg: "Guild isn't setup" });
         return;
     }
 
@@ -86,7 +86,7 @@ ScheduleRouter.post('/', async (req, res) => {
     const dbSchedule = await ScheduleModel.findOne({ guild_id: guild_id })
         .populate<{ map: [{ member: IMember, index: number }]}>("map.member");
     if(!dbSchedule) {
-        res.send({ code: -1, msg: "Couldn't retrieve schedule" });
+        res.send({ code: 301, msg: "Couldn't retrieve schedule" });
         return;
     }
 
@@ -110,7 +110,7 @@ ScheduleRouter.post('/', async (req, res) => {
 
         const dbMember = await MemberModel.findOne({ guild_uid: guild_uid });
         if(!dbMember) {
-            res.send(`Couldn't retrieve member with guild uid: ${guild_uid} `);
+            res.send({ code: 301, msg: `Couldn't retrieve member with guild uid: ${guild_uid}` });
             continue;
         }
 
@@ -119,7 +119,7 @@ ScheduleRouter.post('/', async (req, res) => {
     }
 
     await dbSchedule.save();
-    res.redirect(`/guild/${guild_id}/schedule`);
+    res.send({ code: 200 });
 }); 
 
 export default ScheduleRouter;

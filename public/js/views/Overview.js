@@ -1,14 +1,14 @@
 function Overview() {
-    const container = makeDOM('<div>Loading...</div>');
+    const container = makeDOM('<div></div>');
     document.querySelector('.categories')?.remove();
 
-    fetch(`http://localhost:3000/api${window.location.pathname}`)
+    fetch(`http://localhost:3000/api/guilds/${guild_id}`)
     .then(res => res.json())
     .then(data => {
         if(data.is_setup) {
             container.innerHTML = `Guild setup!`;
             
-            document.querySelector('.sidebar').appendChild(Categories(data.id, data.name, data.icon));
+            document.querySelector('.sidebar').appendChild(Categories(data));
         } else {
             container.innerHTML = `
                 <p>You have to setup the guild!</p>
