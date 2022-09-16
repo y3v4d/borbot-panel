@@ -1,4 +1,6 @@
 function Schedule() {
+    document.title = "Borbot | Schedule";
+
     const container = document.createElement('div');
 
     fetch(`http://localhost:3000/api/guilds/${guild_id}/schedule`)

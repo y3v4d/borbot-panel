@@ -9,9 +9,24 @@ body {
 }
 
 .title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
     padding-left: 16px;
-    background-color: #3B4252;
+    background-color: #2E3440;
     color: #D8DEE9;
+}
+
+.title img {
+    width: 35px;
+    height: 35px;
+    margin-right: 8px;
+}
+
+.title h2 {
+    margin: 16px 0px;
 }
 
 .center {
@@ -20,7 +35,7 @@ body {
 
     flex-grow: 1;
     
-    background-color: #2E3440;
+    background-color: #3B4252;
     width: 100%;
 }
 
@@ -30,8 +45,8 @@ body {
 
 .guilds {
     padding-top: 10px;
-    width: 80px;
-    background-color: #3B4252;
+    width: 90px;
+    background-color: #2E3440;
 }
 
 .guilds-list-temp {
@@ -74,8 +89,8 @@ body {
     width: 15rem;
     background-color: #434C5E;
 
-    border-top-right-radius: 2%;
-    border-bottom-right-radius: 2%;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
 .categories__list {

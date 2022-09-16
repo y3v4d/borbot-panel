@@ -1,4 +1,5 @@
 function Overview() {
+    document.title = "Borbot | Overview"
     const container = makeDOM('<div></div>');
     document.querySelector('.categories')?.remove();
 
