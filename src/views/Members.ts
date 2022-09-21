@@ -1,6 +1,6 @@
-import { component } from "../shared/decorators";
+import { defineComponent } from "../shared/decorators";
 
-@component
+@defineComponent
 class GuildMembers extends HTMLElement {
     
 }

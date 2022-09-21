@@ -1,7 +1,7 @@
-import { attr, component, watchable } from '../shared/decorators';
+import { attr, defineComponent, watchable } from '../shared/decorators';
 import { params } from '../shared/router';
 
-@component
+@defineComponent
 export class GuildListEntry extends HTMLElement {
     @attr
     private guild_id: string;
@@ -32,7 +32,7 @@ export class GuildListEntry extends HTMLElement {
     }
 }
 
-@component
+@defineComponent
 export class GuildList extends HTMLElement {
     @watchable
     private loaded: boolean = false;

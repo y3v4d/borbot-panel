@@ -1,7 +1,7 @@
-import { attr, component } from "../shared/decorators";
+import { attr, defineComponent } from "../shared/decorators";
 import { params } from "../shared/router";
 
-@component
+@defineComponent
 export class GuildCategories extends HTMLElement {
     @attr public icon: string;
     @attr public name: string;

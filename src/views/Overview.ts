@@ -1,8 +1,8 @@
 import { GuildCategories } from "../components/Categories";
-import { component } from "../shared/decorators";
+import { defineComponent } from "../shared/decorators";
 import { params } from "../shared/router";
 
-@component
+@defineComponent
 export class GuildOverview extends HTMLElement {
     connectedCallback() {
         this.innerHTML = this.render();

@@ -37,7 +37,7 @@ export function attr(target: any, key: string) {
     }
 }
 
-export function component(constructor: Function) {
+export function defineComponent(constructor: Function) {
     const words = Array.from(constructor.name.match(/[A-Z]([^A-Z]*)/g));
     const name = words.map(o => o.toLowerCase()).join('-');
 
