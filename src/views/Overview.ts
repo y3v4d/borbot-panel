@@ -1,11 +1,12 @@
 import { GuildCategories } from "../components/Categories";
+import { Component } from "../shared/component";
 import { defineComponent } from "../shared/decorators";
 import { params } from "../shared/router";
 
 @defineComponent
-export class GuildOverview extends HTMLElement {
+export class GuildOverview extends Component {
     connectedCallback() {
-        this.innerHTML = this.render();
+        super.connectedCallback();
 
         document.querySelector('guild-categories')?.remove();
 
@@ -13,10 +14,10 @@ export class GuildOverview extends HTMLElement {
         .then(res => res.json())
         .then(data => {
             if(data.is_setup) {
-                this.innerHTML = ``;
+                this.root.innerHTML = ``;
                 document.querySelector('.sidebar').appendChild(new GuildCategories(data.name, data.icon));
             } else {
-                this.innerHTML = `
+                this.root.innerHTML = `
                     <p>You have to setup the guild!</p>
                     <form id="form-setup' action="guilds/${params.id}/setup" method="post">
                         <label for="uid">Username: </label>

@@ -48,8 +48,8 @@ export function navigateTo(url: string) {
 export default function router(params: Route[]) {
     routes = params;
 
-    document.body.addEventListener('click', event => {
-        const origin = (<HTMLElement> event.target).closest('a');
+    document.addEventListener('click', event => {
+        const origin = (<HTMLElement> event.composedPath()[0]).closest('a');
         if(origin && origin.matches('[data-link]')) {
             event.preventDefault();
 
