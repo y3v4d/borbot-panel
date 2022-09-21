@@ -1,25 +1,19 @@
 {
-  "name": "clicker-heroes-bot-admin-panel",
+  "name": "borbot-panel",
   "version": "0.1",
-  "description": "Admin panel for Clicker Heroes Bot",
+  "description": "Admin panel for Borbot",
   "scripts": {
-    "dev": "ts-node src/index.ts"
+    "build": "webpack",
+    "dev": "webpack serve"
   },
-  "dependencies": {
-    "axios": "^0.27.2",
-    "body-parser": "^1.20.0",
-    "dotenv": "^16.0.1",
-    "ejs": "^3.1.8",
-    "express": "^4.18.1",
-    "express-session": "^1.17.3",
-    "mongoose": "^6.5.3"
-  },
+  "keywords": [],
+  "author": "y3v4d",
+  "license": "ISC",
   "devDependencies": {
-    "@types/ejs": "^3.1.1",
-    "@types/express": "^4.17.13",
-    "@types/express-session": "^1.17.5",
-    "@types/node": "^18.7.13",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.8.2"
+    "ts-loader": "^9.3.1",
+    "typescript": "^4.8.3",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.11.0"
   }
 }

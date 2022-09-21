@@ -1,45 +1,15 @@
-import 'dotenv/config';
+import router from "./shared/router";
+import { GuildList } from "./components/GuildList";
+import { GuildOverview } from "./views/Overview";
+import { GuildSchedule } from "./views/Schedule";
 
-import express from 'express';
-import mongoose, { ObjectId } from 'mongoose';
-import bodyParser from 'body-parser';
-import session from 'express-session';
+document.addEventListener('DOMContentLoaded', () => {
+    // static components
+    document.querySelector('.guilds').replaceChildren(new GuildList());
 
-import MainRouter from './routes';
-import GuildRouter from './routes/guild';
-import ScheduleRouter from './routes/guild/schedule';
-
-declare module 'express-session' {
-    interface SessionData {
-        flag?: number
-    }
-}
-
-const app = express();
-
-app.set('view engine', 'ejs');
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-app.use(session({
-    secret: process.env.SESSION_SECRET!
-}));
-
-app.use(express.static(__dirname + "/../public"));
-
-app.use('/api', MainRouter);
-app.use('/api/guilds', GuildRouter);
-app.use('/api/guilds/:id/schedule', ScheduleRouter);
-
-app.use(/^\/(?!api)(.*)$/, (req, res) => {
-    res.sendFile(`index.html`, { root: "./public" });
+    router([
+        { path: '/', title: "Borbot", view: null },
+        { path: '/guilds/:id', title: "Borbot | Overview", view: GuildOverview },
+        { path: '/guilds/:id/schedule', title: "Borbot | Schedule", view: GuildSchedule }
+    ]);
 });
-
-mongoose.connect(process.env.MONGODB_URI!).then(() => {
-    console.log("Connected to MongoDB.");
-
-    app.listen(3000, () => {
-        console.log("Server started on port 3000.");
-    });
-}).catch(error => console.error(error));

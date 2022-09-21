@@ -30,6 +30,7 @@
 }
 
 .schedule__header button:hover {
+    cursor: pointer;
     background-color: #4C566A;
 }
 
