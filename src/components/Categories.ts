@@ -1,10 +1,13 @@
 import { Component } from "../shared/component";
 import { attr, defineComponent } from "../shared/decorators";
 import { params } from "../shared/router";
+import { getMaterialIconClass } from "../shared/utils";
 
 @defineComponent
 export class GuildCategories extends Component {
     static styles = `
+        ${getMaterialIconClass()}
+        
         :host {
             width: 15rem;
             background-color: #434C5E;
@@ -37,9 +40,23 @@ export class GuildCategories extends Component {
         }
         
         .list__item {
-            display: block;
+            display: flex;
+            height: 40px;
+
             margin: 0px auto 0px auto;
-            width: 80%;
+            width: 90%;
+
+            background-color: #3B4252;
+            color: #D8DEE9;
+
+            text-decoration: none;
+
+            border-radius: 8px;
+
+            justify-content: center;
+            align-items: center;
+
+            margin-bottom: 10px;
         }
     `;
 
@@ -75,13 +92,15 @@ export class GuildCategories extends Component {
         this.root.querySelector('.name').innerHTML = this.name;
         this.root.querySelector('.list').innerHTML = `
             <li>
-                <a href="/guilds/${params.id}/members" data-link>
-                    <button class="list__item">Members</button>
+                <a href="/guilds/${params.id}/members" class="list__item" data-link>
+                    <i class="material-icons">group</i>
+                    Members
                 </a>
             </li>
             <li>
-                <a href="/guilds/${params.id}/schedule" data-link>
-                    <button class="list__item">Schedule</button>
+                <a href="/guilds/${params.id}/schedule" class="list__item" data-link>
+                    <i class="material-icons">event</i>
+                    Schedule
                 </a>
             </li>
         `;

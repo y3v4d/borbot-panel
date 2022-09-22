@@ -2,6 +2,7 @@ import { GuildCategories } from "../components/Categories";
 import { Component } from "../shared/component";
 import { defineComponent } from "../shared/decorators";
 import { navigateTo, params } from "../shared/router";
+import { getMaterialIconClass } from "../shared/utils";
 
 /*@component
 export class GuildScheduleEntry extends HTMLElement {
@@ -41,6 +42,8 @@ export class GuildScheduleEntry extends HTMLElement {
 @defineComponent
 export class GuildSchedule extends Component {
     static styles = `
+        ${getMaterialIconClass()}
+        
         :host {
             display: flex;
             flex-direction: column;
