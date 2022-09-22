@@ -143,11 +143,11 @@ export class GuildSchedule extends Component {
             document.querySelector('.sidebar').appendChild(new GuildCategories());
         }
 
-        fetch(`http://localhost:3010/api/guilds/${params.id}/schedule`)
+        fetch(`http://192.168.8.194:3010/api/guilds/${params.id}/schedule`)
         .then(res => res.json())
         .then(data => {
             if(data.error) {
-                navigateTo(`http://localhost:3000/guilds/${params.id}`);
+                navigateTo(`http://192.168.8.194:3000/guilds/${params.id}`);
                 return;
             }
 
@@ -183,7 +183,7 @@ export class GuildSchedule extends Component {
             query[o.name] = o.options[o.selectedIndex].value;
         });
 
-        fetch(`http://localhost:3010/api/guilds/${params.id}/schedule`, {
+        fetch(`http://192.168.8.194:3010/api/guilds/${params.id}/schedule`, {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json'

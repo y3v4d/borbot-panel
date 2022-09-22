@@ -45,7 +45,7 @@ export class GuildList extends Component {
     connectedCallback() {
         super.connectedCallback();
 
-        fetch('http://localhost:3010/api/guilds')
+        fetch('http://192.168.8.194:3010/api/guilds')
         .then(res => res.json())
         .then(data => {
             if(data.code != 200) {

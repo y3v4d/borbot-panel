@@ -74,7 +74,7 @@ export class GuildCategories extends Component {
         super.connectedCallback();
 
         if(!this.icon || !this.name) {
-            fetch(`http://localhost:3010/api/guilds/${params.id}`)
+            fetch(`http://192.168.8.194:3010/api/guilds/${params.id}`)
             .then(res => res.json())
             .then(data => {
                 this.icon = data.icon;
