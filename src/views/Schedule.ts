@@ -2,7 +2,7 @@ import { GuildCategories } from "../components/Categories";
 import { Component } from "../shared/component";
 import { defineComponent } from "../shared/decorators";
 import { navigateTo, params } from "../shared/router";
-import { getMaterialIconClass } from "../shared/utils";
+import { callAPI, getMaterialIconClass } from "../shared/utils";
 
 @defineComponent
 export class GuildSchedule extends Component {
@@ -98,65 +98,55 @@ export class GuildSchedule extends Component {
         }
     `;
 
-    connectedCallback() {
+    async connectedCallback() {
         super.connectedCallback();
 
         if(!document.querySelector('guild-categories')) {
             document.querySelector('.sidebar').appendChild(new GuildCategories(undefined, undefined, "schedule"));
         }
 
-        fetch(`http://192.168.8.194:3010/api/guilds/${params.id}/schedule`)
-        .then(res => res.json())
-        .then(data => {
-            if(data.error) {
-                navigateTo(`http://192.168.8.194:3000/guilds/${params.id}`);
-                return;
-            }
+        const data = await callAPI(`/guilds/${params.id}/schedule`);
+        if(data.code != 200) {
+            console.error(`Error: ${data.msg}`);
+            navigateTo(`http://localhost:3000/guilds/${params.id}`);
 
-            this.root.querySelector('.list-schedule').innerHTML = `
-                ${data.entries.map(entry => `
-                    <li class="list-schedule__item">
-                        <div class="list-schedule__item__index">
-                            <p>${entry.index}</p>
-                        </div>
-                        <select class="list-schedule__item__select" name="${entry.index}" form="form-schedule">
-                            ${
-                                data.members.map(member => 
-                                    `<option class="list-schedule__item__select__option" value=${member.uid} ${member.uid === entry.uid ? "selected" : ""}>${member.name}</option>`
-                                ).join(' ')
-                            }
-                        </select>
-                    </li>`
-                ).join(' ')}
-            `;
-        });
-        
+            return;
+        }
+
+        this.root.querySelector('.list-schedule').innerHTML = `
+            ${data.entries.map(entry => `
+                <li class="list-schedule__item">
+                    <div class="list-schedule__item__index">
+                        <p>${entry.index}</p>
+                    </div>
+                    <select class="list-schedule__item__select" name="${entry.index}" form="form-schedule">
+                        ${
+                            data.members.map(member => 
+                                `<option class="list-schedule__item__select__option" value=${member.uid} ${member.uid === entry.uid ? "selected" : ""}>${member.name}</option>`
+                            ).join(' ')
+                        }
+                    </select>
+                </li>`
+            ).join(' ')}
+        `;
+
         this.root.querySelector('#form-schedule').addEventListener('submit', this.onFormSubmit);
     }
 
-    onFormSubmit(event: Event) {
+    async onFormSubmit(event: Event) {
         event.preventDefault();
             
-        let query = {};
+        let query: any = {};
         (<HTMLFormElement> event.target).querySelectorAll('.list-schedule__item__select').forEach((o: HTMLSelectElement) => {
             query[o.name] = o.options[o.selectedIndex].value;
         });
 
-        fetch(`http://192.168.8.194:3010/api/guilds/${params.id}/schedule`, {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(query)
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.code != 200) {
-                console.error(data.msg);
-            } else {
-                console.log("Updated schedule");   
-            }
-        });
+        const data = await callAPI(`/guilds/${params.id}/schedule`, query, 'post');
+        if(data.code != 200) {
+            console.error(`Error: ${data.msg}`);
+        } else {
+            console.log("Updated schedule.");
+        }
     }
 
     render() {

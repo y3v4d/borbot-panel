@@ -1,7 +1,7 @@
 import { Component } from "../shared/component";
 import { attr, defineComponent } from "../shared/decorators";
 import { params } from "../shared/router";
-import { getMaterialIconClass } from "../shared/utils";
+import { callAPI, getMaterialIconClass } from "../shared/utils";
 
 @defineComponent
 export class GuildCategories extends Component {
@@ -89,21 +89,21 @@ export class GuildCategories extends Component {
         if(category) this.selectedCategory = category;
     }
 
-    connectedCallback() {
+    async connectedCallback() {
         super.connectedCallback();
 
         if(!this.icon || !this.name) {
-            fetch(`http://192.168.8.194:3010/api/guilds/${params.id}`)
-            .then(res => res.json())
-            .then(data => {
-                this.icon = data.icon;
-                this.name = data.name;
+            const data = await callAPI(`/guilds/${params.id}`);
+            if(data.code != 200) {
+                console.error(`Error: ${data.msg}`);
+                return;
+            }
 
-                this.onDataLoaded();
-            });
-        } else {
-            this.onDataLoaded();
+            this.icon = data.icon;
+            this.name = data.name;
         }
+        
+        this.onDataLoaded();
     }
 
     selectCategory(category: string) {

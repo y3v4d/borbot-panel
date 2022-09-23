@@ -1,6 +1,7 @@
 import { Component } from '../shared/component';
 import { attr, defineComponent, watchable } from '../shared/decorators';
 import { params } from '../shared/router';
+import { callAPI } from '../shared/utils';
 
 @defineComponent
 export class GuildList extends Component {
@@ -42,41 +43,38 @@ export class GuildList extends Component {
         }
     `;
 
-    connectedCallback() {
+    async connectedCallback() {
         super.connectedCallback();
 
-        fetch('http://192.168.8.194:3010/api/guilds')
-        .then(res => res.json())
-        .then(data => {
-            if(data.code != 200) {
-                console.error("Couldn't fetch");
-                return;
-            }
+        const data = await callAPI('/guilds');
+        if(data.code != 200) {
+            console.error(`Error: ${data.msg}`);
+            return;
+        }
 
-            this.root.innerHTML = `
-                <ul class="guilds-list">
-                    ${
-                        data.items.map(value => 
-                            `<li class="guilds-list__item">
-                                <a href="/guilds/${value.id}" data-link>
-                                    <img class="guilds-list__icon ${value.id == params.id ? "selected" : ""}" src="${value.icon}">
-                                </a>
-                            </li>`
-                        ).join(' ')
-                    }
-                </ul>
-            `;
+        this.root.innerHTML = `
+            <ul class="guilds-list">
+                ${
+                    data.items.map(value => 
+                        `<li class="guilds-list__item">
+                            <a href="/guilds/${value.id}" data-link>
+                                <img class="guilds-list__icon ${value.id == params.id ? "selected" : ""}" src="${value.icon}">
+                            </a>
+                        </li>`
+                    ).join(' ')
+                }
+            </ul>
+        `;
 
-            this.root.querySelectorAll('.guilds-list__item').forEach(item => {
-                item.addEventListener('click', event => {
-                    item.parentElement.querySelectorAll('.guilds-list__icon.selected').forEach(o => {
-                        o.className = "guilds-list__icon";
-                    });
+        this.root.querySelectorAll('.guilds-list__item').forEach(item => {
+            item.addEventListener('click', event => {
+                item.parentElement.querySelectorAll('.guilds-list__icon.selected').forEach(o => {
+                    o.className = "guilds-list__icon";
+                });
 
-                    item.querySelector('.guilds-list__icon').className = "guilds-list__icon selected";
-                })
+                item.querySelector('.guilds-list__icon').className = "guilds-list__icon selected";
             })
-        });
+        })
     }
 
     render() {
