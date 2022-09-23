@@ -58,16 +58,35 @@ export class GuildCategories extends Component {
 
             margin-bottom: 10px;
         }
+
+        .list__item.selected {
+            background-color: #8FBCBB;
+            color: #2E3440;
+        }
+
+        .list__item i {
+            padding-left: 14px;
+        }
+
+        .list__item p {
+            flex-grow: 1;
+            text-align: center;
+
+            padding-right: 14px;
+        }
     `;
 
     @attr public icon: string;
     @attr public name: string;
 
-    constructor(name?: string, icon?: string) {
+    private selectedCategory: string | null = null;
+
+    constructor(name?: string, icon?: string, category?: string) {
         super();
 
         if(name) this.name = name;
         if(icon) this.icon = icon;
+        if(category) this.selectedCategory = category;
     }
 
     connectedCallback() {
@@ -87,23 +106,46 @@ export class GuildCategories extends Component {
         }
     }
 
+    selectCategory(category: string) {
+        const list = this.root.querySelector('.list');
+        list.querySelectorAll('.list__item.selected').forEach(a => {
+            a.className = 'list__item';
+        });
+
+        list.querySelector(`#${category}`).className = 'list__item selected';
+    }
+
     onDataLoaded() {
         (<HTMLImageElement> this.root.querySelector('.icon')).src = this.icon;
         this.root.querySelector('.name').innerHTML = this.name;
         this.root.querySelector('.list').innerHTML = `
             <li>
-                <a href="/guilds/${params.id}/members" class="list__item" data-link>
-                    <i class="material-icons">group</i>
-                    Members
+                <a id="home" href="/guilds/${params.id}/home" class="list__item" data-link>
+                    <i class="material-icons">home</i>
+                    <p>Overview</p>
                 </a>
             </li>
             <li>
-                <a href="/guilds/${params.id}/schedule" class="list__item" data-link>
+                <a id="members" href="/guilds/${params.id}/members" class="list__item" data-link>
+                    <i class="material-icons">group</i>
+                    <p>Members</p>
+                </a>
+            </li>
+            <li>
+                <a id="schedule" href="/guilds/${params.id}/schedule" class="list__item" data-link>
                     <i class="material-icons">event</i>
-                    Schedule
+                    <p>Schedule</p>
                 </a>
             </li>
         `;
+
+        this.root.querySelectorAll('.list__item').forEach(a => {
+            a.addEventListener('click', () => {
+                this.selectCategory(a.id);
+            });
+        });
+
+        if(this.selectedCategory) this.selectCategory(this.selectedCategory);
     }
 
     render() {

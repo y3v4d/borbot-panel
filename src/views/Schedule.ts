@@ -4,41 +4,6 @@ import { defineComponent } from "../shared/decorators";
 import { navigateTo, params } from "../shared/router";
 import { getMaterialIconClass } from "../shared/utils";
 
-/*@component
-export class GuildScheduleEntry extends HTMLElement {
-    @attr
-    public index: string;
-
-    @attr
-    public uid: string;
-
-    @attr
-    public members: string;
-
-    connectedCallback() {
-        const shadowRoot = this.attachShadow({ mode: "open" });
-
-        shadowRoot.innerHTML = this.render();
-    }
-
-    render() {
-        return `
-            <li class="list-schedule__item">
-                <div class="list-schedule__item__index">
-                    <p>${this.index}</p>
-                </div>
-                <select class="list-schedule__item__select" name="${this.index}" form="form-schedule">
-                    ${
-                        JSON.parse(this.members).map(o => 
-                            `<option class="list-schedule__item__select__option" value=${o.uid} ${o.uid === this.uid ? "selected" : ""}>${o.name}</option>`
-                        ).join(' ')
-                    }
-                </select>
-            </li>
-        `;
-    }
-}*/
-
 @defineComponent
 export class GuildSchedule extends Component {
     static styles = `
@@ -133,14 +98,11 @@ export class GuildSchedule extends Component {
         }
     `;
 
-    private entries: any[] = [];
-    private members: any[] = [];
-
     connectedCallback() {
         super.connectedCallback();
 
         if(!document.querySelector('guild-categories')) {
-            document.querySelector('.sidebar').appendChild(new GuildCategories());
+            document.querySelector('.sidebar').appendChild(new GuildCategories(undefined, undefined, "schedule"));
         }
 
         fetch(`http://192.168.8.194:3010/api/guilds/${params.id}/schedule`)
@@ -151,18 +113,15 @@ export class GuildSchedule extends Component {
                 return;
             }
 
-            this.entries = data.entries;
-            this.members = data.members;
-
             this.root.querySelector('.list-schedule').innerHTML = `
-                ${this.entries.map(entry => `
+                ${data.entries.map(entry => `
                     <li class="list-schedule__item">
                         <div class="list-schedule__item__index">
                             <p>${entry.index}</p>
                         </div>
                         <select class="list-schedule__item__select" name="${entry.index}" form="form-schedule">
                             ${
-                                this.members.map(member => 
+                                data.members.map(member => 
                                     `<option class="list-schedule__item__select__option" value=${member.uid} ${member.uid === entry.uid ? "selected" : ""}>${member.name}</option>`
                                 ).join(' ')
                             }

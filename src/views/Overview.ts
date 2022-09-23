@@ -5,6 +5,9 @@ import { params } from "../shared/router";
 
 @defineComponent
 export class GuildOverview extends Component {
+    static styles = `
+    `;
+    
     connectedCallback() {
         super.connectedCallback();
 
