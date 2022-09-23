@@ -116,7 +116,7 @@ export class GuildCategories extends Component {
     }
 
     onDataLoaded() {
-        (<HTMLImageElement> this.root.querySelector('.icon')).src = this.icon;
+        (<HTMLImageElement> this.root.querySelector('.icon')).src = this.icon.replace("size=64", "size=80");
         this.root.querySelector('.name').innerHTML = this.name;
         this.root.querySelector('.list').innerHTML = `
             <li>
