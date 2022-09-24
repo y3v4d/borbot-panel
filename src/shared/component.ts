@@ -1,3 +1,5 @@
+import { DOMFactory } from "./factory";
+
 export abstract class Component extends HTMLElement {
     static styles: string = "";
 
@@ -9,10 +11,12 @@ export abstract class Component extends HTMLElement {
 
         shadowRoot.adoptedStyleSheets = [ style ];
 
-        shadowRoot.innerHTML = this.render();
+        const content = this.render();
+        if(typeof content === "string") shadowRoot.innerHTML = content;
+        else shadowRoot.replaceChildren(...content.children);
     }
 
-    render() {
+    render(): HTMLElement | string {
         return ``;
     }
 

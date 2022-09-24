@@ -3,6 +3,16 @@ import { attr, defineComponent, watchable } from '../shared/decorators';
 import { params } from '../shared/router';
 import { callAPI } from '../shared/utils';
 
+import { DOMFactory } from '../shared/factory';
+
+function onItemClicked(event) {
+    this.parentElement.querySelectorAll('.guilds-list__icon.selected').forEach(o => {
+        o.className = "guilds-list__icon";
+    });
+
+    this.querySelector('.guilds-list__icon').className = "guilds-list__icon selected";
+}
+
 @defineComponent
 export class GuildList extends Component {
     static styles = `
@@ -52,43 +62,35 @@ export class GuildList extends Component {
             return;
         }
 
-        this.root.innerHTML = `
+        this.root.replaceChildren((
             <ul class="guilds-list">
-                ${
+                {
                     data.items.map(value => 
-                        `<li class="guilds-list__item">
-                            <a href="/guilds/${value.id}" data-link>
-                                <img class="guilds-list__icon ${value.id == params.id ? "selected" : ""}" src="${value.icon}">
+                        <li class="guilds-list__item" onclick={onItemClicked}>
+                            <a href={`/guilds/${value.id}`} data-link>
+                                <img class={`guilds-list__icon ${value.id == params.id ? "selected" : ""}`} src={value.icon}></img>
                             </a>
-                        </li>`
-                    ).join(' ')
+                        </li>
+                    )
                 }
             </ul>
-        `;
-
-        this.root.querySelectorAll('.guilds-list__item').forEach(item => {
-            item.addEventListener('click', event => {
-                item.parentElement.querySelectorAll('.guilds-list__icon.selected').forEach(o => {
-                    o.className = "guilds-list__icon";
-                });
-
-                item.querySelector('.guilds-list__icon').className = "guilds-list__icon selected";
-            })
-        })
+        ));
     }
 
     render() {
-        return `
-            <div class="temp">
-                <div class="temp__item"></div>
-                <div class="temp__item"></div>
-                <div class="temp__item"></div>
-                <div class="temp__item"></div>
-                <div class="temp__item"></div>
-                <div class="temp__item"></div>
-                <div class="temp__item"></div>
-                <div class="temp__item"></div>
+        return (
+            <div>
+                <div class="temp">
+                    <div class="temp__item"></div>
+                    <div class="temp__item"></div>
+                    <div class="temp__item"></div>
+                    <div class="temp__item"></div>
+                    <div class="temp__item"></div>
+                    <div class="temp__item"></div>
+                    <div class="temp__item"></div>
+                    <div class="temp__item"></div>
+                </div>
             </div>
-        `;
+        );
     }
 }

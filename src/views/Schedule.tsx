@@ -4,6 +4,8 @@ import { defineComponent } from "../shared/decorators";
 import { navigateTo, params } from "../shared/router";
 import { callAPI, getMaterialIconClass } from "../shared/utils";
 
+import { DOMFactory } from "../shared/factory";
+
 @defineComponent
 export class GuildSchedule extends Component {
     static styles = `
@@ -101,6 +103,8 @@ export class GuildSchedule extends Component {
     async connectedCallback() {
         super.connectedCallback();
 
+        this.root.replaceChildren(...this.render().children);
+
         if(!document.querySelector('guild-categories')) {
             document.querySelector('.sidebar').appendChild(new GuildCategories(undefined, undefined, "schedule"));
         }
@@ -137,7 +141,7 @@ export class GuildSchedule extends Component {
         event.preventDefault();
             
         let query: any = {};
-        (<HTMLFormElement> event.target).querySelectorAll('.list-schedule__item__select').forEach((o: HTMLSelectElement) => {
+        (event.target as HTMLFormElement).querySelectorAll('.list-schedule__item__select').forEach((o: HTMLSelectElement) => {
             query[o.name] = o.options[o.selectedIndex].value;
         });
 
@@ -150,19 +154,21 @@ export class GuildSchedule extends Component {
     }
 
     render() {
-        return `
-            <div class="header">
-                <h1>Schedule</h1>
-                <button type="submit" form="form-schedule">
-                    <i class="material-icons">done</i>
-                </button>
-            </div>
-            <div class="separator"></div>
-            <form id="form-schedule" action="/api/guilds/${params.id}/schedule" method="post">
-                <div class="form-schedule__container" >
-                    <ul class="list-schedule"></ul>
+        return (
+            <div>
+                <div class="header">
+                    <h1>Schedule</h1>
+                    <button type="submit" form="form-schedule">
+                        <i class="material-icons">done</i>
+                    </button>
                 </div>
-            </form>
-        `;
+                <div class="separator"></div>
+                <form id="form-schedule" action="/api/guilds/${params.id}/schedule" method="post">
+                    <div class="form-schedule__container" >
+                        <ul class="list-schedule"></ul>
+                    </div>
+                </form>
+            </div>
+        );
     }
 }

@@ -3,6 +3,8 @@ import { attr, defineComponent } from "../shared/decorators";
 import { params } from "../shared/router";
 import { callAPI, getMaterialIconClass } from "../shared/utils";
 
+import { DOMFactory } from "../shared/factory";
+
 @defineComponent
 export class GuildCategories extends Component {
     static styles = `
@@ -116,28 +118,32 @@ export class GuildCategories extends Component {
     }
 
     onDataLoaded() {
-        (<HTMLImageElement> this.root.querySelector('.icon')).src = this.icon.replace("size=64", "size=80");
+        (this.root.querySelector('.icon') as HTMLImageElement).src = this.icon.replace("size=64", "size=80");
         this.root.querySelector('.name').innerHTML = this.name;
-        this.root.querySelector('.list').innerHTML = `
-            <li>
-                <a id="home" href="/guilds/${params.id}/home" class="list__item" data-link>
-                    <i class="material-icons">home</i>
-                    <p>Overview</p>
-                </a>
-            </li>
-            <li>
-                <a id="members" href="/guilds/${params.id}/members" class="list__item" data-link>
-                    <i class="material-icons">group</i>
-                    <p>Members</p>
-                </a>
-            </li>
-            <li>
-                <a id="schedule" href="/guilds/${params.id}/schedule" class="list__item" data-link>
-                    <i class="material-icons">event</i>
-                    <p>Schedule</p>
-                </a>
-            </li>
-        `;
+        this.root.querySelector('.list').replaceChildren(
+            ...(
+                <div>
+                    <li>
+                        <a id="home" href={`/guilds/${params.id}/home`} class="list__item" data-link>
+                            <i class="material-icons">home</i>
+                            <p>Overview</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a id="members" href={`/guilds/${params.id}/members`} class="list__item" data-link>
+                            <i class="material-icons">group</i>
+                            <p>Members</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a id="schedule" href={`/guilds/${params.id}/schedule`} class="list__item" data-link>
+                            <i class="material-icons">event</i>
+                            <p>Schedule</p>
+                        </a>
+                    </li>
+                </div>
+            ).children
+        );
 
         this.root.querySelectorAll('.list__item').forEach(a => {
             a.addEventListener('click', () => {

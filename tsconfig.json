@@ -2,6 +2,8 @@
     "compilerOptions": {
       "outDir": "./public",
       "sourceMap": true,
+      "jsx": "react",
+      "jsxFactory": "DOMFactory",
       "module": "es6",
       "target": "es6",
       "preserveValueImports": true,

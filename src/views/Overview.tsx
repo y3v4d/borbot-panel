@@ -4,6 +4,8 @@ import { defineComponent } from "../shared/decorators";
 import { params } from "../shared/router";
 import { callAPI } from "../shared/utils";
 
+import { DOMFactory } from "../shared/factory";
+
 @defineComponent
 export class GuildOverview extends Component {    
     async connectedCallback() {
@@ -35,6 +37,10 @@ export class GuildOverview extends Component {
     }
 
     render() {
-        return `<p>Loading...</p>`;
+        return (
+            <div>
+                <p>Loading...</p>
+            </div>
+        );
     }
 }
