@@ -5,7 +5,11 @@ export function watchable(target: any, key: string) {
     
     const setter = function(value: any) {
         this['_' + key] = value;
-        if(this.isConnected) this.innerHTML = this.render();
+        if(this.isConnected) {
+            const content = this.render();
+            if(typeof content === "string") this.root.innerHTML = content;
+            else this.root.replaceChildren(content);
+        }
     }
 
     if(delete target[key]) {
@@ -25,6 +29,11 @@ export function attr(target: any, key: string) {
 
     const setter = function(value: string) {
         this.setAttribute(key, value);
+        if(this.isConnected) {
+            const content = this.render();
+            if(typeof content === "string") this.root.innerHTML = content;
+            else this.root.replaceChildren(content);
+        }
     }
 
     if(delete target[key]) {

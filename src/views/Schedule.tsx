@@ -1,10 +1,26 @@
 import { GuildCategories } from "../components/Categories";
 import { Component } from "../shared/component";
-import { defineComponent } from "../shared/decorators";
+import { defineComponent, watchable } from "../shared/decorators";
 import { navigateTo, params } from "../shared/router";
 import { callAPI, getMaterialIconClass } from "../shared/utils";
 
 import { DOMFactory } from "../shared/factory";
+
+async function onFormSubmit(event) {
+    event.preventDefault();
+            
+    let query: any = {};
+    this.querySelectorAll('.list-schedule__item__select').forEach((o: HTMLSelectElement) => {
+        query[o.name] = o.options[o.selectedIndex].value;
+    });
+
+    const data = await callAPI(`/guilds/${params.id}/schedule`, query, 'post');
+    if(data.code != 200) {
+        console.error(`Error: ${data.msg}`);
+    } else {
+        console.log("Updated schedule.");
+    }
+}
 
 @defineComponent
 export class GuildSchedule extends Component {
@@ -100,10 +116,14 @@ export class GuildSchedule extends Component {
         }
     `;
 
+    private entries: any[] = [];
+    private members: any[] = [];
+
+    @watchable
+    private loaded: boolean;
+
     async connectedCallback() {
         super.connectedCallback();
-
-        this.root.replaceChildren(...this.render().children);
 
         if(!document.querySelector('guild-categories')) {
             document.querySelector('.sidebar').appendChild(new GuildCategories(undefined, undefined, "schedule"));
@@ -117,40 +137,9 @@ export class GuildSchedule extends Component {
             return;
         }
 
-        this.root.querySelector('.list-schedule').innerHTML = `
-            ${data.entries.map(entry => `
-                <li class="list-schedule__item">
-                    <div class="list-schedule__item__index">
-                        <p>${entry.index}</p>
-                    </div>
-                    <select class="list-schedule__item__select" name="${entry.index}" form="form-schedule">
-                        ${
-                            data.members.map(member => 
-                                `<option class="list-schedule__item__select__option" value=${member.uid} ${member.uid === entry.uid ? "selected" : ""}>${member.name}</option>`
-                            ).join(' ')
-                        }
-                    </select>
-                </li>`
-            ).join(' ')}
-        `;
-
-        this.root.querySelector('#form-schedule').addEventListener('submit', this.onFormSubmit);
-    }
-
-    async onFormSubmit(event: Event) {
-        event.preventDefault();
-            
-        let query: any = {};
-        (event.target as HTMLFormElement).querySelectorAll('.list-schedule__item__select').forEach((o: HTMLSelectElement) => {
-            query[o.name] = o.options[o.selectedIndex].value;
-        });
-
-        const data = await callAPI(`/guilds/${params.id}/schedule`, query, 'post');
-        if(data.code != 200) {
-            console.error(`Error: ${data.msg}`);
-        } else {
-            console.log("Updated schedule.");
-        }
+        this.entries = data.entries;
+        this.members = data.members;
+        this.loaded = true;
     }
 
     render() {
@@ -163,9 +152,34 @@ export class GuildSchedule extends Component {
                     </button>
                 </div>
                 <div class="separator"></div>
-                <form id="form-schedule" action="/api/guilds/${params.id}/schedule" method="post">
-                    <div class="form-schedule__container" >
-                        <ul class="list-schedule"></ul>
+                <form id="form-schedule" action="/api/guilds/${params.id}/schedule" method="post" onsubmit={onFormSubmit}>
+                    <div class="form-schedule__container">
+                        <ul class="list-schedule">
+                            {
+                                this.entries.map(entry =>
+                                    <li class="list-schedule__item">
+                                        <div class="list-schedule__item__index">
+                                            <p>{entry.index.toString()}</p>
+                                        </div>
+                                        <select class="list-schedule__item__select" name={entry.index} form="form-schedule">
+                                            {
+                                                this.members.map(member => {
+                                                    const option = (
+                                                        <option class="list-schedule__item__select__option" value={member.uid}>
+                                                            {member.name}
+                                                        </option>
+                                                    );
+
+                                                    if(member.uid == entry.uid) option.selected = true;
+
+                                                    return option;
+                                                })
+                                            }
+                                        </select>
+                                    </li>
+                                )
+                            }
+                        </ul>
                     </div>
                 </form>
             </div>

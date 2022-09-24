@@ -1,11 +1,20 @@
 function parseChild(element: Element, child) {
     if(typeof child == "string") element.appendChild(document.createTextNode(child));
-    else if(child.length) child.forEach(o => parseChild(element, o));
+    else if(Array.isArray(child)) {
+        child.forEach(o => parseChild(element, o));
+    }
     else element.appendChild(child);
 }
 
 export function DOMFactory(tag, properties, ...children): Element {
-    const element = document.createElement(tag);
+    let element: Element;
+    if(typeof tag == "function") {
+        element = new tag();
+    } else if(typeof tag === "string") {
+        element = document.createElement(tag);
+    } else {
+        throw new Error('wtf');
+    }
 
     if(properties) {
         Object.keys(properties).forEach(key => {

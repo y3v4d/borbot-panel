@@ -78,8 +78,8 @@ export class GuildCategories extends Component {
         }
     `;
 
-    @attr public icon: string;
-    @attr public name: string;
+    @attr public icon: string = "";
+    @attr public name: string = "";
 
     private selectedCategory: string | null = null;
 
@@ -101,64 +101,49 @@ export class GuildCategories extends Component {
                 return;
             }
 
-            this.icon = data.icon;
+            this.icon = data.icon.replace("size=64", "size=80");
             this.name = data.name;
         }
         
-        this.onDataLoaded();
+        if(this.selectedCategory) this.selectCategory(this.selectedCategory);
     }
 
-    selectCategory(category: string) {
-        const list = this.root.querySelector('.list');
-        list.querySelectorAll('.list__item.selected').forEach(a => {
-            a.className = 'list__item';
+    selectCategory(name?: string) {
+        const item = name !== undefined ? this.root.querySelector(`#${name}`) : this;
+
+        item.parentElement.querySelectorAll('.list__item.selected').forEach(a => {
+            a.className = 'list__item'
         });
 
-        list.querySelector(`#${category}`).className = 'list__item selected';
+        item.querySelector('.list__item').className = "list__item selected";
     }
 
-    onDataLoaded() {
-        (this.root.querySelector('.icon') as HTMLImageElement).src = this.icon.replace("size=64", "size=80");
-        this.root.querySelector('.name').innerHTML = this.name;
-        this.root.querySelector('.list').replaceChildren(
-            ...(
-                <div>
-                    <li>
-                        <a id="home" href={`/guilds/${params.id}/home`} class="list__item" data-link>
+    render() {
+        return (
+            <div>
+                <img class="icon" src={this.icon}></img>
+                <p class="name">{this.name}</p>
+                <ul class="list">
+                    <li id="home" onclick={this.selectCategory}>
+                        <a href={`/guilds/${params.id}/home`} class="list__item" data-link>
                             <i class="material-icons">home</i>
                             <p>Overview</p>
                         </a>
                     </li>
-                    <li>
-                        <a id="members" href={`/guilds/${params.id}/members`} class="list__item" data-link>
+                    <li id="members" onclick={this.selectCategory}>
+                        <a href={`/guilds/${params.id}/members`} class="list__item" data-link>
                             <i class="material-icons">group</i>
                             <p>Members</p>
                         </a>
                     </li>
-                    <li>
-                        <a id="schedule" href={`/guilds/${params.id}/schedule`} class="list__item" data-link>
+                    <li id="schedule" onclick={this.selectCategory}>
+                        <a href={`/guilds/${params.id}/schedule`} class="list__item" data-link>
                             <i class="material-icons">event</i>
                             <p>Schedule</p>
                         </a>
                     </li>
-                </div>
-            ).children
+                </ul>
+            </div>  
         );
-
-        this.root.querySelectorAll('.list__item').forEach(a => {
-            a.addEventListener('click', () => {
-                this.selectCategory(a.id);
-            });
-        });
-
-        if(this.selectedCategory) this.selectCategory(this.selectedCategory);
-    }
-
-    render() {
-        return `
-            <img class="icon">
-            <p class="name"></p>
-            <ul class="list"></ul>
-        `;
     }
 }

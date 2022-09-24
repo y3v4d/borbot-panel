@@ -53,6 +53,9 @@ export class GuildList extends Component {
         }
     `;
 
+    @watchable
+    private items: any[] = [];
+
     async connectedCallback() {
         super.connectedCallback();
 
@@ -62,24 +65,12 @@ export class GuildList extends Component {
             return;
         }
 
-        this.root.replaceChildren((
-            <ul class="guilds-list">
-                {
-                    data.items.map(value => 
-                        <li class="guilds-list__item" onclick={onItemClicked}>
-                            <a href={`/guilds/${value.id}`} data-link>
-                                <img class={`guilds-list__icon ${value.id == params.id ? "selected" : ""}`} src={value.icon}></img>
-                            </a>
-                        </li>
-                    )
-                }
-            </ul>
-        ));
+        this.items = data.items;
     }
 
     render() {
-        return (
-            <div>
+        if(this.items.length == 0) {
+            return (
                 <div class="temp">
                     <div class="temp__item"></div>
                     <div class="temp__item"></div>
@@ -90,7 +81,25 @@ export class GuildList extends Component {
                     <div class="temp__item"></div>
                     <div class="temp__item"></div>
                 </div>
-            </div>
-        );
+            );
+        } else {
+            return (
+                <ul class="guilds-list">
+                    {
+                        this.items.map(value => {
+                            const className = `guilds-list__icon ${value.id == params.id ? "selected" : ""}`;
+
+                            return (
+                                <li class="guilds-list__item" onclick={onItemClicked}>
+                                    <a href={`/guilds/${value.id}`} data-link>
+                                        <img class={className} src={value.icon}></img>
+                                    </a>
+                                </li>
+                            );
+                        })
+                    }
+                </ul>
+            )
+        }
     }
 }
