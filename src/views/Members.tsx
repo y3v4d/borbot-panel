@@ -6,6 +6,7 @@ import { callAPI, getClassName, getMaterialIconClass } from "../shared/utils";
 
 import { DOMFactory } from "../shared/factory";
 import { getCurrentGuildInfo } from "../shared/global";
+import { SpinLoader } from "../components/SpinLoader";
 
 async function onFormSubmit(event: Event) {
     event.preventDefault();
@@ -29,8 +30,19 @@ export class GuildMembers extends Component {
         ${getMaterialIconClass()}
 
         :host {
+            flex-grow: 1;
+
             display: flex;
             flex-direction: column;
+        }
+
+        .loading {
+            flex-grow: 1;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
         }
 
         .header {
@@ -130,7 +142,7 @@ export class GuildMembers extends Component {
         }
 
         if(!document.querySelector('guild-categories')) {
-            document.querySelector('.sidebar').appendChild(new GuildCategories(undefined, undefined, "members"));
+            document.querySelector('.sidebar').appendChild(new GuildCategories(guildInfo.name, guildInfo.icon, "members"));
         }
         
         const data = await callAPI(`/guilds/${params.id}/connected`);
@@ -145,50 +157,58 @@ export class GuildMembers extends Component {
     }
 
     render() {
-        return (
-            <div>
-                <div class="header">
-                    <h1>Members</h1>
-                    <button type="submit" form="form-members">
-                        <i class="material-icons">done</i>
-                    </button>
+        if(this.connected.length == 0) {
+            return (
+                <div class="loading">
+                    <SpinLoader/>
                 </div>
-                <div class="separator"></div>
-                <form id="form-members" onsubmit={onFormSubmit}>
-                    <ul class="list">
-                        {
-                            this.clanMembers.map(co => {
-                                const member = this.connected.find(o => o.clan_uid == co.uid);
-                                const connected_uid = member ? member.guild_uid : null;
+            );
+        } else {
+            return (
+                <div>
+                    <div class="header">
+                        <h1>Members</h1>
+                        <button type="submit" form="form-members">
+                            <i class="material-icons">done</i>
+                        </button>
+                    </div>
+                    <div class="separator"></div>
+                    <form id="form-members" onsubmit={onFormSubmit}>
+                        <ul class="list">
+                            {
+                                this.clanMembers.map(co => {
+                                    const member = this.connected.find(o => o.clan_uid == co.uid);
+                                    const connected_uid = member ? member.guild_uid : null;
 
-                                return (
-                                    <li class="list__item">
-                                        <div class="list__item__clanname">
-                                            <p>{co.nickname} The {getClassName(co.class)}</p>
-                                        </div>
-                                        
-                                        <select class="list__item__select" name="${co.uid}" form="form-members">
-                                            <option value="none">Noone</option>
-                                            {
-                                                this.guildMembers.map(member => {
-                                                    const option = (
-                                                        <option value={member.id}>
-                                                            {member.username}#{member.disc}
-                                                        </option>
-                                                    );
+                                    return (
+                                        <li class="list__item">
+                                            <div class="list__item__clanname">
+                                                <p>{co.nickname} The {getClassName(co.class)}</p>
+                                            </div>
+                                            
+                                            <select class="list__item__select" name="${co.uid}" form="form-members">
+                                                <option value="none">Noone</option>
+                                                {
+                                                    this.guildMembers.map(member => {
+                                                        const option = (
+                                                            <option value={member.id}>
+                                                                {member.username}#{member.disc}
+                                                            </option>
+                                                        );
 
-                                                    if(member.id === connected_uid) option.selected = true;
-                                                    return option;
-                                                })
-                                            }
-                                        </select>
-                                    </li>
-                                );
-                            })
-                        }
-                    </ul>
-                </form>
-            </div>
-        );
+                                                        if(member.id === connected_uid) option.selected = true;
+                                                        return option;
+                                                    })
+                                                }
+                                            </select>
+                                        </li>
+                                    );
+                                })
+                            }
+                        </ul>
+                    </form>
+                </div>
+            );
+        }
     }
 }

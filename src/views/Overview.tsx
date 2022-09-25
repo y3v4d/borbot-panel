@@ -5,9 +5,19 @@ import { params } from "../shared/router";
 
 import { DOMFactory } from "../shared/factory";
 import { getCurrentGuildInfo } from "../shared/global";
+import { SpinLoader } from "../components/SpinLoader";
 
 @defineComponent
 export class GuildOverview extends Component {
+    static styles = `
+        :host {
+            flex-grow: 1;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    `;
     @watchable
     loaded: boolean = false;
 
@@ -19,6 +29,7 @@ export class GuildOverview extends Component {
         document.querySelector('guild-categories')?.remove();
 
         const guildInfo = await getCurrentGuildInfo();
+
         if(guildInfo.is_setup) {
             this.is_setup = true;
             document.querySelector('.sidebar').appendChild(new GuildCategories(guildInfo.name, guildInfo.icon, "home"));
@@ -32,7 +43,7 @@ export class GuildOverview extends Component {
     render() {
         if(!this.loaded) {
             return (
-                <p>Loading...</p>
+                <SpinLoader/>
             );
         } else if(this.is_setup) {
             return (

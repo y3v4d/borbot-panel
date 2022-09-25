@@ -6,11 +6,11 @@ import { callAPI } from '../shared/utils';
 import { DOMFactory } from '../shared/factory';
 
 function onItemClicked(event) {
-    this.parentElement.querySelectorAll('.guilds-list__icon.selected').forEach(o => {
-        o.className = "guilds-list__icon";
+    this.parentElement.querySelectorAll('.icon.selected').forEach(o => {
+        o.className = "icon";
     });
 
-    this.querySelector('.guilds-list__icon').className = "guilds-list__icon selected";
+    this.querySelector('.icon').className = "icon selected";
 }
 
 @defineComponent
@@ -30,17 +30,17 @@ export class GuildList extends Component {
             height: 64px;
         }
 
-        .guilds-list {
+        .list {
             list-style-type: none;
             margin: 0;
             padding: 0;
         }
 
-        .guilds-list__item {
+        .item {
             padding-bottom: 10px;
         }
         
-        .guilds-list__icon {
+        .icon {
             display: block;
             margin-left: auto;
             margin-right: auto;
@@ -48,7 +48,7 @@ export class GuildList extends Component {
             border-radius: 50%;
         }
         
-        .guilds-list__icon.selected {
+        .icon.selected {
             border-radius: 20%;
         }
     `;
@@ -84,13 +84,13 @@ export class GuildList extends Component {
             );
         } else {
             return (
-                <ul class="guilds-list">
+                <ul class="list">
                     {
                         this.items.map(value => {
-                            const className = `guilds-list__icon ${value.id == params.id ? "selected" : ""}`;
+                            const className = `icon ${value.id == params.id ? "selected" : ""}`;
 
                             return (
-                                <li class="guilds-list__item" onclick={onItemClicked}>
+                                <li class="item" onclick={onItemClicked}>
                                     <a href={`/guilds/${value.id}`} data-link>
                                         <img class={className} src={value.icon}></img>
                                     </a>
