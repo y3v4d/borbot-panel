@@ -35,10 +35,6 @@ export class GuildCategories extends Component {
         
             border-radius: 50%;
         }
-
-        .icon__temp {
-
-        }
         
         .name {
             text-align: center;
