@@ -5,6 +5,7 @@ import { params } from "../shared/router";
 import { callAPI } from "../shared/utils";
 
 import { DOMFactory } from "../shared/factory";
+import { getCurrentGuildInfo } from "../shared/global";
 
 @defineComponent
 export class GuildOverview extends Component {
@@ -18,15 +19,10 @@ export class GuildOverview extends Component {
 
         document.querySelector('guild-categories')?.remove();
 
-        const data = await callAPI(`/guilds/${params.id}`);
-        if(data.code != 200) {
-            console.error(`Error: ${data.msg}`);
-            return;
-        }
-
-        if(data.is_setup) {
+        const guildInfo = await getCurrentGuildInfo();
+        if(guildInfo.is_setup) {
             this.is_setup = true;
-            document.querySelector('.sidebar').appendChild(new GuildCategories(data.name, data.icon));
+            document.querySelector('.sidebar').appendChild(new GuildCategories(guildInfo.name, guildInfo.icon));
         } else {
             this.is_setup = false;
         }

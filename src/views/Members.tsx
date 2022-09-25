@@ -2,32 +2,32 @@ import { GuildCategories } from "../components/Categories";
 import { Component } from "../shared/component";
 import { defineComponent, watchable } from "../shared/decorators";
 import { navigateTo, params } from "../shared/router";
-import { callAPI, getMaterialIconClass } from "../shared/utils";
+import { callAPI, getClassName, getMaterialIconClass } from "../shared/utils";
 
 import { DOMFactory } from "../shared/factory";
 import { getCurrentGuildInfo } from "../shared/global";
 
-async function onFormSubmit(event) {
+async function onFormSubmit(event: Event) {
     event.preventDefault();
-            
-    let query: any = {};
-    this.querySelectorAll('.list-schedule__item__select').forEach((o: HTMLSelectElement) => {
-        query[o.name] = o.options[o.selectedIndex].value;
+
+    let query = { data: [] };
+    this.querySelectorAll('select').forEach((o: HTMLSelectElement) => {
+        query.data.push({ clan_uid: o.name, guild_uid: o.options[o.selectedIndex].value });
     });
 
-    const data = await callAPI(`/guilds/${params.id}/schedule`, query, 'post');
+    const data = await callAPI(`/guilds/${params.id}/connected`, query, 'post');
     if(data.code != 200) {
         console.error(`Error: ${data.msg}`);
     } else {
-        console.log("Updated schedule.");
+        console.log("Updated members.");
     }
 }
 
 @defineComponent
-export class GuildSchedule extends Component {
+export class GuildMembers extends Component {
     static styles = `
         ${getMaterialIconClass()}
-        
+
         :host {
             display: flex;
             flex-direction: column;
@@ -45,8 +45,7 @@ export class GuildSchedule extends Component {
 
         .header h1 {
             flex-grow: 1;
-
-            margin: 16px 16px;
+            margin: 16px;
         }
 
         .header button {
@@ -71,34 +70,33 @@ export class GuildSchedule extends Component {
             margin-bottom: 16px;
         }
 
-        .form-schedule__container {
-            padding: 0px 16px;
-        }
-
-        .list-schedule {
+        .list {
             list-style-type: none;
             margin: 0;
-            padding: 0;
+            padding: 0 16px;
         }
 
-        .list-schedule__item {
+        .list__item {
             display: flex;
             align-items: center;
+
+            margin-bottom: 16px;
         }
 
-        .list-schedule__item__index {
+        .list__item__clanname {
             background-color: #4C566A;
             color: #E5E9F0;
-            width: 60px;
-        
+
+            width: 200px;
+
             font-weight: bold;
             text-align: center;
-        
+            
             border-top-left-radius: 8px;
             border-bottom-left-radius: 8px;
         }
-        
-        .list-schedule__item__select {
+
+        .list__item select {
             background-color: #434C5E;
             color: #E5E9F0;
         
@@ -108,7 +106,6 @@ export class GuildSchedule extends Component {
             font-weight: bold;
         
             padding: 16px 16px;
-            margin: 8px 0px;
         
             border: none;
         
@@ -117,77 +114,79 @@ export class GuildSchedule extends Component {
         }
     `;
 
-    private entries: any[] = [];
-    private members: any[] = [];
+    private clanMembers: any[] = [];
+    private guildMembers: any[] = [];
 
     @watchable
-    private loaded: boolean;
+    private connected: any[] = [];
 
     async connectedCallback() {
         super.connectedCallback();
 
         const guildInfo = await getCurrentGuildInfo();
         if(!guildInfo.is_setup) {
-            navigateTo(`/guilds/${params.id}`)
+            navigateTo(`/guilds/${params.id}`);
             return;
         }
 
         if(!document.querySelector('guild-categories')) {
-            document.querySelector('.sidebar').appendChild(new GuildCategories(guildInfo.name, guildInfo.icon, "schedule"));
+            document.querySelector('.sidebar').appendChild(new GuildCategories(undefined, undefined, "members"));
         }
-
-        const data = await callAPI(`/guilds/${params.id}/schedule`);
+        
+        const data = await callAPI(`/guilds/${params.id}/connected`);
         if(data.code != 200) {
             console.error(`Error: ${data.msg}`);
-            navigateTo(`http://localhost:3000/guilds/${params.id}`);
-
             return;
         }
 
-        this.entries = data.entries;
-        this.members = data.members;
-        this.loaded = true;
+        this.clanMembers = guildInfo.clanMembers;
+        this.guildMembers = guildInfo.guildMembers;
+        this.connected = data.members;
     }
 
     render() {
         return (
             <div>
                 <div class="header">
-                    <h1>Schedule</h1>
-                    <button type="submit" form="form-schedule">
+                    <h1>Members</h1>
+                    <button type="submit" form="form-members">
                         <i class="material-icons">done</i>
                     </button>
                 </div>
                 <div class="separator"></div>
-                <form id="form-schedule" action="/api/guilds/${params.id}/schedule" method="post" onsubmit={onFormSubmit}>
-                    <div class="form-schedule__container">
-                        <ul class="list-schedule">
-                            {
-                                this.entries.map(entry =>
-                                    <li class="list-schedule__item">
-                                        <div class="list-schedule__item__index">
-                                            <p>{entry.index.toString()}</p>
+                <form id="form-members" onsubmit={onFormSubmit}>
+                    <ul class="list">
+                        {
+                            this.clanMembers.map(co => {
+                                const member = this.connected.find(o => o.clan_uid == co.uid);
+                                const connected_uid = member ? member.guild_uid : null;
+
+                                return (
+                                    <li class="list__item">
+                                        <div class="list__item__clanname">
+                                            <p>{co.nickname} The {getClassName(co.class)}</p>
                                         </div>
-                                        <select class="list-schedule__item__select" name={entry.index} form="form-schedule">
+                                        
+                                        <select class="list__item__select" name="${co.uid}" form="form-members">
+                                            <option value="none">Noone</option>
                                             {
-                                                this.members.map(member => {
+                                                this.guildMembers.map(member => {
                                                     const option = (
-                                                        <option class="list-schedule__item__select__option" value={member.uid}>
-                                                            {member.name}
+                                                        <option value={member.id}>
+                                                            {member.username}#{member.disc}
                                                         </option>
                                                     );
 
-                                                    if(member.uid == entry.uid) option.selected = true;
-
+                                                    if(member.id === connected_uid) option.selected = true;
                                                     return option;
                                                 })
                                             }
                                         </select>
                                     </li>
-                                )
-                            }
-                        </ul>
-                    </div>
+                                );
+                            })
+                        }
+                    </ul>
                 </form>
             </div>
         );

@@ -26,3 +26,12 @@ export async function callAPI(path: string, params?: any, method: "get" | "post"
         }).catch(error => reject(error));
     });
 }
+
+export function getClassName(id: number) {
+    switch(id) {
+        case 1: return "Rogue";
+        case 2: return "Mage";
+        case 3: return "Priest";
+        default: return "Unknown";
+    }
+}
