@@ -6,11 +6,11 @@ import { callAPI, getMaterialIconClass } from "../shared/utils";
 import { DOMFactory } from "../shared/factory";
 
 function onCategoryItemClicked(event: Event) {
-    this.parentElement.querySelectorAll('.list__item.selected').forEach(a => {
-        a.className = 'list__item'
+    this.parentElement.querySelectorAll('.item.selected').forEach(a => {
+        a.className = 'item'
     });
 
-    this.querySelector('.list__item').className = "list__item selected";
+    this.querySelector('.item').className = "item selected";
 }
 
 @defineComponent
@@ -49,7 +49,7 @@ export class GuildCategories extends Component {
             padding: 0;
         }
         
-        .list__item {
+        .item {
             display: flex;
             height: 40px;
 
@@ -69,16 +69,16 @@ export class GuildCategories extends Component {
             margin-bottom: 10px;
         }
 
-        .list__item.selected {
+        .item.selected {
             background-color: #8FBCBB;
             color: #2E3440;
         }
 
-        .list__item i {
+        .item i {
             padding-left: 14px;
         }
 
-        .list__item p {
+        .item p {
             flex-grow: 1;
             text-align: center;
 
@@ -119,11 +119,11 @@ export class GuildCategories extends Component {
     selectCategory(name?: string) {
         const item = name !== undefined ? this.root.querySelector(`#${name}`) : this;
 
-        item.parentElement.querySelectorAll('.list__item.selected').forEach(a => {
-            a.className = 'list__item'
+        item.parentElement.querySelectorAll('.item.selected').forEach(a => {
+            a.className = 'item'
         });
 
-        item.querySelector('.list__item').className = "list__item selected";
+        item.querySelector('.item').className = "item selected";
     }
 
     render() {
@@ -133,19 +133,19 @@ export class GuildCategories extends Component {
                 <p class="name">{this.name}</p>
                 <ul class="list">
                     <li id="home" onclick={onCategoryItemClicked}>
-                        <a href={`/guilds/${params.id}/home`} class="list__item" data-link>
+                        <a href={`/guilds/${params.id}`} class="item" data-link>
                             <i class="material-icons">home</i>
                             <p>Overview</p>
                         </a>
                     </li>
                     <li id="members" onclick={onCategoryItemClicked}>
-                        <a href={`/guilds/${params.id}/members`} class="list__item" data-link>
+                        <a href={`/guilds/${params.id}/members`} class="item" data-link>
                             <i class="material-icons">group</i>
                             <p>Members</p>
                         </a>
                     </li>
                     <li id="schedule" onclick={onCategoryItemClicked}>
-                        <a href={`/guilds/${params.id}/schedule`} class="list__item" data-link>
+                        <a href={`/guilds/${params.id}/schedule`} class="item" data-link>
                             <i class="material-icons">event</i>
                             <p>Schedule</p>
                         </a>

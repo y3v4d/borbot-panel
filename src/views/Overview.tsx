@@ -2,7 +2,6 @@ import { GuildCategories } from "../components/Categories";
 import { Component } from "../shared/component";
 import { defineComponent, watchable } from "../shared/decorators";
 import { params } from "../shared/router";
-import { callAPI } from "../shared/utils";
 
 import { DOMFactory } from "../shared/factory";
 import { getCurrentGuildInfo } from "../shared/global";
@@ -22,7 +21,7 @@ export class GuildOverview extends Component {
         const guildInfo = await getCurrentGuildInfo();
         if(guildInfo.is_setup) {
             this.is_setup = true;
-            document.querySelector('.sidebar').appendChild(new GuildCategories(guildInfo.name, guildInfo.icon));
+            document.querySelector('.sidebar').appendChild(new GuildCategories(guildInfo.name, guildInfo.icon, "home"));
         } else {
             this.is_setup = false;
         }
