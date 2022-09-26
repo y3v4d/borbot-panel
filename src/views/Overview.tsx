@@ -32,7 +32,7 @@ export class GuildOverview extends Component {
 
         if(guildInfo.is_setup) {
             this.is_setup = true;
-            document.querySelector('.sidebar').appendChild(new GuildCategories(guildInfo.name, guildInfo.icon, "home"));
+            document.querySelector('.middle').replaceChildren(new GuildCategories(guildInfo.name, guildInfo.icon, "home"));
         } else {
             this.is_setup = false;
         }

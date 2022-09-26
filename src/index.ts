@@ -4,10 +4,11 @@ import { GuildOverview } from "./views/Overview";
 import { GuildSchedule } from "./views/Schedule";
 import { GuildMembers } from "./views/Members";
 import { GuildAnnouncements } from "./views/Announcements";
+import { GuildCategories } from "./components/Categories";
 
 document.addEventListener('DOMContentLoaded', () => {
     // static components
-    document.querySelector('.guilds').replaceChildren(new GuildList());
+    document.querySelector('.top').appendChild(new GuildList());
 
     router([
         { path: '/', title: "Borbot", view: null },

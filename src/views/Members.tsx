@@ -142,7 +142,7 @@ export class GuildMembers extends Component {
         }
 
         if(!document.querySelector('guild-categories')) {
-            document.querySelector('.sidebar').appendChild(new GuildCategories(guildInfo.name, guildInfo.icon, "members"));
+            document.querySelector('.middle').appendChild(new GuildCategories(guildInfo.name, guildInfo.icon, "members"));
         }
         
         const data = await callAPI(`/guilds/${params.id}/connected`);

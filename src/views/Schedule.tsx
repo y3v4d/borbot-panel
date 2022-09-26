@@ -144,7 +144,7 @@ export class GuildSchedule extends Component {
         }
 
         if(!document.querySelector('guild-categories')) {
-            document.querySelector('.sidebar').appendChild(new GuildCategories(guildInfo.name, guildInfo.icon, "schedule"));
+            document.querySelector('.middle').appendChild(new GuildCategories(guildInfo.name, guildInfo.icon, "schedule"));
         }
 
         const data = await callAPI(`/guilds/${params.id}/schedule`);

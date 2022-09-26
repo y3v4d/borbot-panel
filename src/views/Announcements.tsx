@@ -63,7 +63,7 @@ export class GuildAnnouncements extends Component {
         }
 
         if(!document.querySelector('guild-categories')) {
-            document.querySelector('.sidebar').appendChild(new GuildCategories(guildInfo.name, guildInfo.icon, "announcements"));
+            document.querySelector('.middle').appendChild(new GuildCategories(guildInfo.name, guildInfo.icon, "announcements"));
         }
 
         const data = await callAPI(`/guilds/${params.id}/channels`);

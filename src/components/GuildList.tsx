@@ -5,51 +5,90 @@ import { callAPI } from '../shared/utils';
 
 import { DOMFactory } from '../shared/factory';
 
-function onItemClicked(event) {
-    this.parentElement.querySelectorAll('.icon.selected').forEach(o => {
-        o.className = "icon";
-    });
-
-    this.querySelector('.icon').className = "icon selected";
+function onDropupClick(event: Event) {
+    const dropbtn = this.querySelector('.dropbtn');
+    const options = this.querySelector('.options');
+    if(options.hasAttribute('hidden')) {
+        dropbtn.setAttribute('dropped', '');
+        options.removeAttribute('hidden');
+    } else {
+        dropbtn.removeAttribute('dropped');
+        options.setAttribute('hidden', '');
+    }
 }
 
 @defineComponent
 export class GuildList extends Component {
     static styles = `
-        .temp {
+        .dropup {
+            position: relative;
+            cursor: pointer;
+            margin: 0px 8px;
+        }
+
+        .dropbtn {
+            user-select: none;
+            background-color: #3B4252;
+            color: #ECEFF4;
+
+            border-radius: 6px;
+
             display: flex;
-            flex-direction: column;
+            align-items: center;
+
+            font-weight: bold;
         }
 
-        .temp__item {
+        .dropbtn[dropped] {
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .dropbtn .icon_temp {
             background-color: #434C5E;
-            border-radius: 50%;
-            margin: 0px auto 10px auto;
-
-            width: 64px;
-            height: 64px;
+            border-radius: 6px;
+            width: 36px;
+            height: 36px;
+            margin: 8px;
         }
 
-        .list {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
+        .options {
+            position: absolute;
+
+            left: 0;
+            right: 0;
+
+            background-color: #434C5E;
+            color: #ECEFF4;
+
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+
+            font-weight: bold;
         }
 
-        .item {
-            padding-bottom: 10px;
+        .option {
+            text-decoration: none;
+            color: #ECEFF4;
+
+            display: flex;
+            align-items: center;
+            border-radius: 6px;
         }
-        
-        .icon {
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        
-            border-radius: 50%;
+
+        .option[hidden] {
+            display: none;
         }
-        
-        .icon.selected {
-            border-radius: 20%;
+
+        .option img, .dropbtn img {
+            border-radius: 6px;
+            width: 36px;
+            height: 36px;
+            margin: 8px;
+        }
+
+        .option:hover {
+            background-color: #81A1C1;
         }
     `;
 
@@ -65,41 +104,43 @@ export class GuildList extends Component {
             return;
         }
 
-        this.items = data.items;
+        this.items = data.items; // will rerender
+
+        const selected = this.root.querySelector(`a[href="/guilds/${params.id}"]`);
+        if(selected) {
+            this.selectItem(selected);
+        }
+    }
+
+    selectItem(target: Element) {
+        const options = this.root.querySelector('.options');
+
+        options.querySelectorAll('[hidden]').forEach(o => o.removeAttribute('hidden'));
+        target.setAttribute('hidden', '');
+        this.root.querySelector('.dropbtn').innerHTML = target.innerHTML;
+    }
+
+    onItemClick(event: Event) {
+        this.selectItem((event.target as HTMLElement).closest('.option'));
     }
 
     render() {
-        if(this.items.length == 0) {
-            return (
-                <div class="temp">
-                    <div class="temp__item"></div>
-                    <div class="temp__item"></div>
-                    <div class="temp__item"></div>
-                    <div class="temp__item"></div>
-                    <div class="temp__item"></div>
-                    <div class="temp__item"></div>
-                    <div class="temp__item"></div>
-                    <div class="temp__item"></div>
+        return (
+            <div onclick={onDropupClick} class="dropup">
+                <div class="dropbtn">
+                    <div class="icon_temp"></div>
                 </div>
-            );
-        } else {
-            return (
-                <ul class="list">
+                <div class="options" hidden>
                     {
-                        this.items.map(value => {
-                            const className = `icon ${value.id == params.id ? "selected" : ""}`;
-
-                            return (
-                                <li class="item" onclick={onItemClicked}>
-                                    <a href={`/guilds/${value.id}`} data-link>
-                                        <img class={className} src={value.icon}></img>
-                                    </a>
-                                </li>
-                            );
-                        })
+                        this.items.map(item => 
+                            <a href={`/guilds/${item.id}`} class="option" onclick={(event) => this.onItemClick(event)} data-link>
+                                <img src={item.icon}></img>
+                                <p>{item.name}</p>
+                            </a>
+                        )
                     }
-                </ul>
-            )
-        }
+                </div>
+            </div>
+        );
     }
 }

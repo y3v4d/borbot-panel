@@ -17,15 +17,7 @@ function onCategoryItemClicked(event: Event) {
 export class GuildCategories extends Component {
     static styles = `
         ${getMaterialIconClass()}
-        
-        :host {
-            width: 15rem;
-            background-color: #434C5E;
-        
-            border-top-right-radius: 8px;
-            border-bottom-right-radius: 8px;
-        }
-        
+
         .icon {
             display: block;
         
@@ -54,9 +46,7 @@ export class GuildCategories extends Component {
             height: 40px;
 
             margin: 0px auto 0px auto;
-            width: 90%;
 
-            background-color: #3B4252;
             color: #D8DEE9;
 
             text-decoration: none;
@@ -66,7 +56,7 @@ export class GuildCategories extends Component {
             justify-content: center;
             align-items: center;
 
-            margin-bottom: 10px;
+            margin: 0px 8px 10px;
         }
 
         .item.selected {
@@ -76,11 +66,11 @@ export class GuildCategories extends Component {
 
         .item i {
             padding-left: 14px;
+            padding-right: 14px;
         }
 
         .item p {
             flex-grow: 1;
-            text-align: center;
 
             padding-right: 14px;
         }
@@ -128,36 +118,32 @@ export class GuildCategories extends Component {
 
     render() {
         return (
-            <div>
-                <img class="icon" src={this.icon}></img>
-                <p class="name">{this.name}</p>
-                <ul class="list">
-                    <li id="home" onclick={onCategoryItemClicked}>
-                        <a href={`/guilds/${params.id}`} class="item" data-link>
-                            <i class="material-icons">home</i>
-                            <p>Overview</p>
-                        </a>
-                    </li>
-                    <li id="members" onclick={onCategoryItemClicked}>
-                        <a href={`/guilds/${params.id}/members`} class="item" data-link>
-                            <i class="material-icons">group</i>
-                            <p>Members</p>
-                        </a>
-                    </li>
-                    <li id="schedule" onclick={onCategoryItemClicked}>
-                        <a href={`/guilds/${params.id}/schedule`} class="item" data-link>
-                            <i class="material-icons">event</i>
-                            <p>Schedule</p>
-                        </a>
-                    </li>
-                    <li id="announcements" onclick={onCategoryItemClicked}>
-                        <a href={`/guilds/${params.id}/announcements`} class="item" data-link>
-                            <i class="material-icons">share</i>
-                            <p>Announcements</p>
-                        </a>
-                    </li>
-                </ul>
-            </div>  
+            <ul class="list">
+                <li id="home" onclick={onCategoryItemClicked}>
+                    <a href={`/guilds/${params.id}`} class="item" data-link>
+                        <i class="material-icons">home</i>
+                        <p>Overview</p>
+                    </a>
+                </li>
+                <li id="members" onclick={onCategoryItemClicked}>
+                    <a href={`/guilds/${params.id}/members`} class="item" data-link>
+                        <i class="material-icons">group</i>
+                        <p>Members</p>
+                    </a>
+                </li>
+                <li id="schedule" onclick={onCategoryItemClicked}>
+                    <a href={`/guilds/${params.id}/schedule`} class="item" data-link>
+                        <i class="material-icons">event</i>
+                        <p>Schedule</p>
+                    </a>
+                </li>
+                <li id="announcements" onclick={onCategoryItemClicked}>
+                    <a href={`/guilds/${params.id}/announcements`} class="item" data-link>
+                        <i class="material-icons">share</i>
+                        <p>Announcements</p>
+                    </a>
+                </li>
+            </ul>
         );
     }
 }
