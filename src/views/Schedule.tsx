@@ -6,6 +6,7 @@ import { callAPI, getMaterialIconClass } from "../shared/utils";
 
 import { DOMFactory } from "../shared/factory";
 import { getCurrentGuildInfo } from "../shared/global";
+import { SpinLoader } from "../components/SpinLoader";
 
 async function onFormSubmit(event) {
     event.preventDefault();
@@ -29,8 +30,18 @@ export class GuildSchedule extends Component {
         ${getMaterialIconClass()}
         
         :host {
+            flex-grow: 1;
+
             display: flex;
             flex-direction: column;
+        }
+
+        .loading {
+            flex-grow: 1;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .header {
@@ -117,11 +128,11 @@ export class GuildSchedule extends Component {
         }
     `;
 
-    private entries: any[] = [];
+    
     private members: any[] = [];
 
     @watchable
-    private loaded: boolean;
+    private entries: any[] = [];
 
     async connectedCallback() {
         super.connectedCallback();
@@ -144,52 +155,59 @@ export class GuildSchedule extends Component {
             return;
         }
 
+        this.members = guildInfo.guildMembers;
         this.entries = data.entries;
-        this.members = data.members;
-        this.loaded = true;
     }
 
     render() {
-        return (
-            <div>
-                <div class="header">
-                    <h1>Schedule</h1>
-                    <button type="submit" form="form-schedule">
-                        <i class="material-icons">done</i>
-                    </button>
+        if(this.entries.length == 0) {
+            return (
+                <div class="loading">
+                    <SpinLoader/>
                 </div>
-                <div class="separator"></div>
-                <form id="form-schedule" action="/api/guilds/${params.id}/schedule" method="post" onsubmit={onFormSubmit}>
-                    <div class="form-schedule__container">
-                        <ul class="list-schedule">
-                            {
-                                this.entries.map(entry =>
-                                    <li class="list-schedule__item">
-                                        <div class="list-schedule__item__index">
-                                            <p>{entry.index.toString()}</p>
-                                        </div>
-                                        <select class="list-schedule__item__select" name={entry.index} form="form-schedule">
-                                            {
-                                                this.members.map(member => {
-                                                    const option = (
-                                                        <option class="list-schedule__item__select__option" value={member.uid}>
-                                                            {member.name}
-                                                        </option>
-                                                    );
-
-                                                    if(member.uid == entry.uid) option.selected = true;
-
-                                                    return option;
-                                                })
-                                            }
-                                        </select>
-                                    </li>
-                                )
-                            }
-                        </ul>
+            )
+        } else {
+            return (
+                <div>
+                    <div class="header">
+                        <h1>Schedule</h1>
+                        <button type="submit" form="form-schedule">
+                            <i class="material-icons">done</i>
+                        </button>
                     </div>
-                </form>
-            </div>
-        );
+                    <div class="separator"></div>
+                    <form id="form-schedule" action="/api/guilds/${params.id}/schedule" method="post" onsubmit={onFormSubmit}>
+                        <div class="form-schedule__container">
+                            <ul class="list-schedule">
+                                {
+                                    this.entries.map(entry =>
+                                        <li class="list-schedule__item">
+                                            <div class="list-schedule__item__index">
+                                                <p>{entry.index.toString()}</p>
+                                            </div>
+                                            <select class="list-schedule__item__select" name={entry.index} form="form-schedule">
+                                                {
+                                                    this.members.map(member => {
+                                                        const option = (
+                                                            <option class="list-schedule__item__select__option" value={member.id}>
+                                                                {member.username}#{member.disc}
+                                                            </option>
+                                                        );
+
+                                                        if(member.id == entry.uid) option.selected = true;
+
+                                                        return option;
+                                                    })
+                                                }
+                                            </select>
+                                        </li>
+                                    )
+                                }
+                            </ul>
+                        </div>
+                    </form>
+                </div>
+            );
+        }
     }
 }

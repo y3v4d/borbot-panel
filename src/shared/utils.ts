@@ -10,7 +10,7 @@ export function getMaterialIconClass() {
 }
 
 export async function callAPI(path: string, params?: any, method: "get" | "post" = "get", ) {
-    const ENDPOINT = 'http://192.168.8.194:3010/api';
+    const ENDPOINT = 'http://localhost:3010/api';//'http://192.168.8.194:3010/api';
 
     return new Promise<any>((resolve, reject) => {
         fetch(`${ENDPOINT}${path}`, {
