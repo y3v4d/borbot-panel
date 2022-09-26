@@ -67,8 +67,6 @@ export class GuildAnnouncements extends Component {
         }
 
         const data = await callAPI(`/guilds/${params.id}/channels`);
-        console.log(data);
-
         this.channels = data.channels;
     }
     
