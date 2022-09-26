@@ -150,7 +150,7 @@ export class GuildSchedule extends Component {
         const data = await callAPI(`/guilds/${params.id}/schedule`);
         if(data.code != 200) {
             console.error(`Error: ${data.msg}`);
-            navigateTo(`http://localhost:3000/guilds/${params.id}`);
+            navigateTo(`/guilds/${params.id}`);
 
             return;
         }
@@ -176,7 +176,7 @@ export class GuildSchedule extends Component {
                         </button>
                     </div>
                     <div class="separator"></div>
-                    <form id="form-schedule" action="/api/guilds/${params.id}/schedule" method="post" onsubmit={onFormSubmit}>
+                    <form id="form-schedule" action={`/api/guilds/${params.id}/schedule`} onsubmit={onFormSubmit}>
                         <div class="form-schedule__container">
                             <ul class="list-schedule">
                                 {

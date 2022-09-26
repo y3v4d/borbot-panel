@@ -12,7 +12,6 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
 
     padding-left: 16px;
     background-color: #2E3440;

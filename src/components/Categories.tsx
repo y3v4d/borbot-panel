@@ -150,6 +150,12 @@ export class GuildCategories extends Component {
                             <p>Schedule</p>
                         </a>
                     </li>
+                    <li id="announcements" onclick={onCategoryItemClicked}>
+                        <a href={`/guilds/${params.id}/announcements`} class="item" data-link>
+                            <i class="material-icons">share</i>
+                            <p>Announcements</p>
+                        </a>
+                    </li>
                 </ul>
             </div>  
         );
