@@ -8,34 +8,10 @@ import styles from './Dashboard.module.css';
 const ADMINISTRATOR_FLAG = (1 << 3);
 
 const Dashboard: Component = () => {
-    const params = useParams();
-    createEffect(() => {
-        console.log(`I'm on ${params.id}`);
-    })
-
-    const [guilds, setGuilds] = createSignal<any[]>([]);
     const navigate = useNavigate();
+    const params = useParams();
 
-    /*onMount(async () => {
-        try {
-            const res = await callAPI('/guilds', {}, 'get');
-            if(res.code === 200) {
-                const items: any[] = [];
-                for(const item of res.items) {
-                    if((parseInt(item.permissions) & ADMINISTRATOR_FLAG) === ADMINISTRATOR_FLAG) {
-                        items.push(item);
-                    }
-                }
-
-                setGuilds(items);
-                console.log('set items');
-            } else {
-                console.error(`Error ${res.code}: ${res.msg}`);
-            }
-        } catch(error) {
-            console.error(error);
-        }
-    })*/
+    const [guild, setGuild] = createSignal<any>({});
 
     const onLogoutClicked = async () => {
         try {
@@ -49,10 +25,26 @@ const Dashboard: Component = () => {
         }
     }
 
+    createEffect(() => {
+        setGuild({});
+        
+        callAPI(`/guilds/${params.id}`)
+        .then((res) => {
+            if(res.code != 200) {
+                console.error(`Error ${res.code}: ${res.msg}`);
+                return;
+            }
+
+            setGuild(res.data);
+
+            console.log(res);
+        }).catch(error => console.error(error));
+    });
+
     return (
         <div class={styles.container}>
             <section class={styles.sidebar}>
-                <Show when={params.id} fallback={<div class={styles.fill}></div>}>
+                <Show when={guild().is_setup} fallback={<div class={styles.fill}></div>}>
                     <nav class={styles.navigation}>
                         <A end={true} activeClass={styles.navigation_link_active} href={`/dashboard/${params.id}`}>
                             <span class='material-icons'>home</span>
