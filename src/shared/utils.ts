@@ -12,7 +12,8 @@ export async function callAPI(path: string, params?: any, method: "get" | "post"
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: method == 'post' ? JSON.stringify(params) : undefined
+            body: method == 'post' ? JSON.stringify(params) : undefined,
+            credentials: 'include'
         })
         .then(res => res.json())
         .then(data => {

@@ -35,13 +35,17 @@ const Home: Component = () => {
         });
     };
 
+    const onDashboardClicked = async (event: Event) => {
+        console.log("Moving to dashboard");
+    }
+
     return (
         <div class={styles.container}>
             <Show
                 when={!user.loading && user().code == 200}
                 fallback={<button onClick={onLoginClicked} class={styles.login_button}>Login with Discord</button>}
             >
-                <button>Dashboard</button>
+                <button class={styles.login_button} onClick={onDashboardClicked}>Dashboard</button>
             </Show>
         </div>
     )
