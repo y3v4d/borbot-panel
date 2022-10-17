@@ -186,7 +186,7 @@ export class GuildMembers extends Component {
                                                 <p>{co.nickname} The {getClassName(co.class)}</p>
                                             </div>
                                             
-                                            <select class="list__item__select" name="${co.uid}" form="form-members">
+                                            <select class="list__item__select" name={co.uid} form="form-members">
                                                 <option value="none">Noone</option>
                                                 {
                                                     this.guildMembers.map(member => {

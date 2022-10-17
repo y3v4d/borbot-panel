@@ -156,7 +156,17 @@ export class GuildSchedule extends Component {
         }
 
         this.members = guildInfo.guildMembers;
-        this.entries = data.entries;
+        //this.entries = data.entries;
+        let items: any[] = [];
+        let current_i = 0;
+        for(let i = 0; i < 10; ++i) {
+            if(data.entries[current_i].index == i + 1) {
+                items.push(data.entries[current_i++]);
+            } else {
+                items.push({ uid: '', index: (i + 1).toString() })
+            }
+        }
+        this.entries = items;
     }
 
     render() {
