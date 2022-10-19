@@ -25,20 +25,17 @@ const Dashboard: Component = () => {
         }
     }
 
-    createEffect(() => {
+    createEffect(async () => {
         setGuild({});
         
-        callAPI(`/guilds/${params.id}`)
-        .then((res) => {
-            if(res.code != 200) {
-                console.error(`Error ${res.code}: ${res.msg}`);
-                return;
-            }
+        const res = await callAPI(`/guilds/${params.id}`);
+        console.log(res);
 
+        if(res.code == 200) {
             setGuild(res.data);
-
-            console.log(res);
-        }).catch(error => console.error(error));
+        } else if(res.code == 401) {
+            navigate('/');
+        }
     });
 
     return (
@@ -61,8 +58,10 @@ const Dashboard: Component = () => {
                     <span class={`material-icons ${styles.logout}`} onClick={onLogoutClicked}>logout</span>
                 </div>
             </section>
-            <div>
-                <Outlet/>
+            <div class={styles.dashboard_container}>
+                <Show when={guild().is_joined} fallback={<div>Not joined</div>}>
+                    <Outlet />
+                </Show>
             </div>
         </div>
     )

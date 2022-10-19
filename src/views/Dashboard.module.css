@@ -53,3 +53,8 @@
 .logout:hover {
     cursor: pointer;
 }
+
+.dashboard_container {
+    overflow-y: scroll;
+    flex-grow: 1;
+}

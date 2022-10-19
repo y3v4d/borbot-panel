@@ -4,6 +4,7 @@ import { Routes, Route } from '@solidjs/router';
 import './App.module.css';
 import Home from './views/Home';
 import Dashboard from './views/Dashboard';
+import Members from './views/Members';
 import GuildOverview from './views/GuildOverview';
 
 const App: Component = () => {
@@ -13,7 +14,7 @@ const App: Component = () => {
                 <Route path='/' component={Home} />
                 <Route path='/dashboard/:id?' component={Dashboard}>
                     <Route path='/' element={<div>Overview</div>} />
-                    <Route path='/members' element={<div>Members</div>} />
+                    <Route path='/members' component={Members} />
                 </Route>
                 <Route path="*" element={<div>404: Unknown route</div>} />
             </Routes>

@@ -1,6 +1,5 @@
 import { useNavigate } from "@solidjs/router";
 import { Component, createEffect, createSignal, For, Show } from "solid-js";
-import { params } from "../../src_old/shared/router";
 import { callAPI } from "../shared/utils";
 import styles from './GuildList.module.css';
 
@@ -33,7 +32,7 @@ const GuildList: Component<any> = (props) => {
         } else {
             console.error(`Error ${res.code}: ${res.msg}`);
         }
-    }).catch(error => console.error(error));
+    });
 
     const onItemClicked = (event: Event) => {
         const element: HTMLElement = (event.target as HTMLElement).closest('div')!;
