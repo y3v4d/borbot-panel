@@ -17,7 +17,7 @@ const GuildList: Component<any> = (props) => {
         setOption(guilds().find(o => o.id === selected()));
     });
 
-    callAPI('/guilds', {}, 'get')
+    callAPI('/me/guilds', {}, 'get')
     .then(res => {
         if(res.code === 200) {
             const items: any[] = [];

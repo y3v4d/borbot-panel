@@ -15,7 +15,7 @@ const Dashboard: Component = () => {
 
     const onLogoutClicked = async () => {
         try {
-            const res = await callAPI('/deauth', {}, 'post');
+            const res = await callAPI('/auth/logout', {}, 'post');
             if(res.code === 200) {
                 console.log("Successfully deauthorizaed.");
                 navigate('/');

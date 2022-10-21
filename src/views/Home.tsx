@@ -23,7 +23,7 @@ const Home: Component = () => {
 
             console.log(`Token is: ${event.data}`);
             try {
-                const data = await callAPI('/auth', { code: event.data }, 'post');
+                const data = await callAPI('/auth/login', { code: event.data }, 'post');
                 if(data.code !== 200) {
                     console.error(`Encountered error: ${data.msg}`);
                     return;
