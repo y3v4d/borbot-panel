@@ -1,9 +1,9 @@
 import { Component, createEffect, createSignal, onMount, Show } from "solid-js";
 import { callAPI } from "../shared/utils";
 import { A, Outlet, useNavigate, useParams } from '@solidjs/router';
-import GuildList from "../components/GuildList";
 
 import styles from './Dashboard.module.css';
+import Dropdown from "../components/Dropdown";
 
 const ADMINISTRATOR_FLAG = (1 << 3);
 
@@ -11,30 +11,45 @@ const Dashboard: Component = () => {
     const navigate = useNavigate();
     const params = useParams();
 
+    const [guilds, setGuilds] = createSignal<any[]>([]);
     const [guild, setGuild] = createSignal<any>({});
 
     const onLogoutClicked = async () => {
         try {
-            const res = await callAPI('/auth/logout', {}, 'post');
-            if(res.code === 200) {
-                console.log("Successfully deauthorizaed.");
-                navigate('/');
-            }
+            await callAPI('/auth/logout', {}, 'post');
+
+            console.log("Successfully deauthorized.");
+            navigate('/');
         } catch(error) {
             console.error(error);
         }
     }
 
+    callAPI(`/me/guilds`)
+    .then(data => {
+        const items: any[] = [];
+        for(const item of data) {
+            if((parseInt(item.permissions) & ADMINISTRATOR_FLAG) === ADMINISTRATOR_FLAG) {
+                items.push({ content: item.name, icon: item.icon, id: item.id });
+            }
+        }
+
+        setGuilds(items);
+    }).catch(error => console.error(error));
+
     createEffect(async () => {
+        if(params.id === undefined) return;
+        
         setGuild({});
         
-        const res = await callAPI(`/guilds/${params.id}`);
-        console.log(res);
-
-        if(res.code == 200) {
-            setGuild(res.data);
-        } else if(res.code == 401) {
-            navigate('/');
+        try {
+            const data = await callAPI(`/guilds/${params.id}`);
+            setGuild(data);
+        } catch(error: any) {
+            if(error.status == 401) { // Unauthorized
+                navigate('/');
+            }
+            
         }
     });
 
@@ -54,7 +69,12 @@ const Dashboard: Component = () => {
                     </nav>
                 </Show>
                 <div class={styles.sidebar_bottom}>
-                    <GuildList current={params.id}/>
+                    <Dropdown 
+                        items={guilds()} 
+                        up={true} 
+                        selected={params.id}
+                        callback={(id: string) => navigate(`/dashboard/${id}`)}
+                    />
                     <span class={`material-icons ${styles.logout}`} onClick={onLogoutClicked}>logout</span>
                 </div>
             </section>

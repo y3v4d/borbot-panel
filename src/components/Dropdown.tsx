@@ -28,7 +28,7 @@ const Dropdown: Component<any> = (params) => {
                     <p>{option().content}</p>
                 </Show>
             </div>
-            <div class={styles.list} classList={{[styles.show]: dropped()}}>
+            <div class={styles.list} classList={{[styles.show]: dropped(), [styles.going_up]: params.up}}>
                 <For each={params.items}>
                     {
                         (item: any) => (

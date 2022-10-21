@@ -14,8 +14,8 @@ const Members: Component = () => {
     const guild_id = params.id;
 
     callAPI(`/guilds/${guild_id}/guildMembers`)
-    .then(res => {
-        const items = res.members.map((o: any) => {
+    .then(data => {
+        const items = data.map((o: any) => {
             return {
                 id: o.id,
                 icon: o.avatar,
@@ -27,15 +27,13 @@ const Members: Component = () => {
     }).catch(error => console.error(error));
 
     callAPI(`/guilds/${guild_id}/clanMembers`)
-    .then(res => {
-        setClanMembers(res.members);
+    .then(data => {
+        setClanMembers(data);
     }).catch(error => console.error(error));
 
     callAPI(`/guilds/${guild_id}/connected`)
-    .then(res => {
-
-        console.log(res);
-        setConnected(res.members);
+    .then(data => {
+        setConnected(data);
     }).catch(error => console.error(error));
 
     return (

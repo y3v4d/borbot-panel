@@ -35,6 +35,10 @@
     z-index: 1;
 }
 
+.going_up {
+    bottom: 66px;
+}
+
 .item {
     display: flex;
     flex-direction: row;

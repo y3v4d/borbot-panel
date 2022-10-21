@@ -2,16 +2,25 @@ export async function callAPI(path: string, params?: any, method: "get" | "post"
     const ENDPOINT = 'http://localhost:3010/api';
     //const ENDPOINT = 'http://192.168.8.194:3010/api';
 
-    const res = await fetch(`${ENDPOINT}${path}`, {
-        method: method,
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: method == 'post' ? JSON.stringify(params) : undefined,
-        credentials: 'include'
-    });
+    try {
+        const res = await fetch(`${ENDPOINT}${path}`, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: method == 'post' ? JSON.stringify(params) : undefined,
+            credentials: 'include'
+        });
+        
+        const json = await res.json();
+        if(!res.ok) {
+            throw { status: res.status, data: json }
+        }
 
-    return await res.json();
+        return json;
+    } catch(error) {
+        throw error;
+    }
 }
 
 export function getClassName(id: number) {

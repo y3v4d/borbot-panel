@@ -1,4 +1,4 @@
-import { Component, createResource, Show } from "solid-js";
+import { Component, createResource, createSignal, Show } from "solid-js";
 import { callAPI } from "../shared/utils";
 import styles from "./Home.module.css";
 import { useNavigate } from '@solidjs/router';
@@ -23,13 +23,7 @@ const Home: Component = () => {
 
             console.log(`Token is: ${event.data}`);
             try {
-                const data = await callAPI('/auth/login', { code: event.data }, 'post');
-                if(data.code !== 200) {
-                    console.error(`Encountered error: ${data.msg}`);
-                    return;
-                }
-
-                console.log('Success!');
+                await callAPI('/auth/login', { code: event.data }, 'post');
                 navigate('/dashboard');
             } catch(error) {
                 console.error(error);
@@ -39,14 +33,13 @@ const Home: Component = () => {
 
     const onDashboardClicked = async (event: Event) => {
         console.log("Moving to dashboard");
-
         navigate('/dashboard');
     }
 
     return (
         <div class={styles.container}>
             <Show
-                when={!user.loading && user().code == 200}
+                when={ !user.loading && !user.error }
                 fallback={<button onClick={onLoginClicked} class={styles.login_button}>Login with Discord</button>}
             >
                 <button class={styles.login_button} onClick={onDashboardClicked}>Dashboard</button>
