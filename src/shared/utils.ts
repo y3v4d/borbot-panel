@@ -1,12 +1,25 @@
+export function getCookie(cookieName: string) {
+    const name = cookieName + '=';
+    const pairs = document.cookie.split(';');
+    for(let i = 0; i < pairs.length; ++i) {
+        const trimmed = pairs[i].trim();
+        if(trimmed.indexOf(name) == 0) {
+            return trimmed.substring(name.length);
+        }
+    }
+
+    return "";
+}
+
 export async function callAPI(path: string, params?: any, method: "get" | "post" = "get", ) {
     const ENDPOINT = 'http://localhost:3010/api';
-    //const ENDPOINT = 'http://192.168.8.194:3010/api';
 
     try {
         const res = await fetch(`${ENDPOINT}${path}`, {
             method: method,
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': getCookie('token')
             },
             body: method == 'post' ? JSON.stringify(params) : undefined,
             credentials: 'include'

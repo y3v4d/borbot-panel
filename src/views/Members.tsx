@@ -5,6 +5,8 @@ import { callAPI } from "../shared/utils";
 
 import styles from './Members.module.css';
 
+const ConnectedCache = new Map<string, any>();
+
 const Members: Component = () => {
     const [clanMembers, setClanMembers] = createSignal<any[]>([]);
     const [members, setMembers] = createSignal<any[]>([]);
@@ -31,11 +33,20 @@ const Members: Component = () => {
         setClanMembers(data);
     }).catch(error => console.error(error));
 
-    callAPI(`/guilds/${guild_id}/connected`)
-    .then(data => {
-        setConnected(data);
-    }).catch(error => console.error(error));
+    if(ConnectedCache.has(guild_id)) {
+        console.log("[CACHE CONNECTED LIST]", ConnectedCache.get(guild_id));
 
+        setConnected(ConnectedCache.get(guild_id));
+    } else {
+        callAPI(`/guilds/${guild_id}/connected`)
+        .then(data => {
+            console.log(`[NEW CONNECTED LIST]`, data);
+
+            setConnected(data);
+            ConnectedCache.set(guild_id, data);
+        }).catch(error => console.error(error));
+    }
+    
     return (
         <div class={styles.container}>
             <For each={clanMembers()}>

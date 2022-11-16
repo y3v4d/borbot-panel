@@ -21,7 +21,6 @@ const Home: Component = () => {
                 return;
             }
 
-            console.log(`Token is: ${event.data}`);
             try {
                 await callAPI('/auth/login', { code: event.data }, 'post');
                 navigate('/dashboard');

@@ -5,7 +5,6 @@ import './App.module.css';
 import Home from './views/Home';
 import Dashboard from './views/Dashboard';
 import Members from './views/Members';
-import GuildOverview from './views/GuildOverview';
 
 const App: Component = () => {
     return (

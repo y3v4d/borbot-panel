@@ -1,11 +1,11 @@
 import { Component, createEffect, createSignal, onMount, Show } from "solid-js";
-import { callAPI } from "../shared/utils";
+import { callAPI, getCookie } from "../shared/utils";
 import { A, Outlet, useNavigate, useParams } from '@solidjs/router';
 
 import styles from './Dashboard.module.css';
 import Dropdown from "../components/Dropdown";
 
-const ADMINISTRATOR_FLAG = (1 << 3);
+const GuildCache = new Map<string, any>();
 
 const Dashboard: Component = () => {
     const navigate = useNavigate();
@@ -27,25 +27,41 @@ const Dashboard: Component = () => {
 
     callAPI(`/me/guilds`)
     .then(data => {
+        console.log(`GUILDS`, data);
         const items: any[] = [];
         for(const item of data) {
-            if((parseInt(item.permissions) & ADMINISTRATOR_FLAG) === ADMINISTRATOR_FLAG) {
+            if(item.isAdmin) {
                 items.push({ content: item.name, icon: item.icon, id: item.id });
             }
         }
-
+        
         setGuilds(items);
-    }).catch(error => console.error(error));
+    }).catch(error => {
+        console.error(error);
+
+        if(error.status == 401) {
+            navigate('/');
+        }
+    });
 
     createEffect(async () => {
         if(params.id === undefined) return;
-        
-        setGuild({});
+
+        const guild_id = params.id;
+        if(GuildCache.has(guild_id)) {
+            console.log(`[CACHE GUILD DATA]`, GuildCache.get(guild_id));
+            setGuild(GuildCache.get(guild_id));
+            return;
+        }
         
         try {
-            const data = await callAPI(`/guilds/${params.id}`);
-            setGuild(data);
+            const data = await callAPI(`/guilds/${guild_id}`);
+            console.log(`[NEW GUILD DATA]`, data);
+            if(params.id === guild_id) setGuild(data);
+
+            GuildCache.set(guild_id, data);
         } catch(error: any) {
+            console.error(error);
             if(error.status == 401) { // Unauthorized
                 navigate('/');
             }
