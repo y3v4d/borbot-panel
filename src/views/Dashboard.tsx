@@ -82,6 +82,10 @@ const Dashboard: Component = () => {
                             <span class='material-icons'>people</span>
                             <p>Members</p>
                         </A>
+                        <A end={true} activeClass={styles.navigation_link_active} href={`/dashboard/${params.id}/schedule`}>
+                            <span class='material-icons'>calendar_month</span>
+                            <p>Schedule</p>
+                        </A>
                     </nav>
                 </Show>
                 <div class={styles.sidebar_bottom}>

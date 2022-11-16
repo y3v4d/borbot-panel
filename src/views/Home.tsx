@@ -1,4 +1,4 @@
-import { Component, createResource, createSignal, Show } from "solid-js";
+import { Component, createResource, Show } from "solid-js";
 import { callAPI } from "../shared/utils";
 import styles from "./Home.module.css";
 import { useNavigate } from '@solidjs/router';
