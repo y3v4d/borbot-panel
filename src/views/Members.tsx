@@ -40,7 +40,6 @@ const Members: Component = () => {
 
             setClanMembers(data.clan);
             setMembers(guildMembers);
-            
         }).catch(error => console.error(error))
     }).catch(error => console.error(error))
     
