@@ -1,31 +1,39 @@
-export function makeDOM(src: string) {
-    const temp = document.createElement('div');
-    temp.innerHTML = src;
+export function getCookie(cookieName: string) {
+    const name = cookieName + '=';
+    const pairs = document.cookie.split(';');
+    for(let i = 0; i < pairs.length; ++i) {
+        const trimmed = pairs[i].trim();
+        if(trimmed.indexOf(name) == 0) {
+            return trimmed.substring(name.length);
+        }
+    }
 
-    return temp.children[0];
-}
-
-export function getMaterialIconClass() {
-    return `.material-icons { font-family: 'Material Icons'; font-weight: normal; font-style: normal; font-size: 24px; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; word-wrap: normal; direction: ltr; -webkit-font-smoothing: antialiased; }`;
+    return "";
 }
 
 export async function callAPI(path: string, params?: any, method: "get" | "post" = "get", ) {
     const ENDPOINT = 'http://localhost:3010/api';
-    //const ENDPOINT = 'http://192.168.8.194:3010/api';
 
-    return new Promise<any>((resolve, reject) => {
-        fetch(`${ENDPOINT}${path}`, {
+    try {
+        const res = await fetch(`${ENDPOINT}${path}`, {
             method: method,
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': getCookie('token')
             },
-            body: method == 'post' ? JSON.stringify(params) : undefined
-        })
-        .then(res => res.json())
-        .then(data => {
-            resolve(data);
-        }).catch(error => reject(error));
-    });
+            body: method == 'post' ? JSON.stringify(params) : undefined,
+            credentials: 'include'
+        });
+        
+        const json = await res.json();
+        if(!res.ok) {
+            throw { status: res.status, data: json }
+        }
+
+        return json;
+    } catch(error) {
+        throw error;
+    }
 }
 
 export function getClassName(id: number) {

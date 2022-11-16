@@ -1,0 +1,60 @@
+.container {
+    display: flex;
+    height: 100%;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+
+    background-color: #2E3440;
+}
+
+.sidebar_bottom {
+    display: flex;
+    flex-direction: row;
+
+    align-items: center;
+}
+
+.fill {
+    flex-grow: 1;
+}
+
+.navigation {
+    flex-grow: 1;
+
+    padding: 8px;
+}
+
+.navigation a {
+    display: flex;
+    align-items: center;
+
+    color: #D8DEE9;
+    text-decoration: none;
+
+    border-radius: 6px;
+}
+
+.navigation_link_active {
+    background-color: #5E81AC;
+}
+
+.navigation a span {
+    padding: 8px;
+}
+
+.logout {
+    color: #D8DEE9;
+    padding: 8px;
+}
+
+.logout:hover {
+    cursor: pointer;
+}
+
+.dashboard_container {
+    overflow-y: scroll;
+    flex-grow: 1;
+}
