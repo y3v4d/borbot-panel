@@ -1,6 +1,7 @@
 import { useParams } from "@solidjs/router";
-import { Component, createSignal, For } from "solid-js";
+import { Component, createSignal, For, Show } from "solid-js";
 import Dropdown from "../components/Dropdown";
+import SpinLoader from "../components/SpinLoader";
 import { callAPI } from "../shared/utils";
 
 import styles from './Members.module.css';
@@ -42,9 +43,9 @@ const Members: Component = () => {
             setMembers(guildMembers);
         }).catch(error => console.error(error))
     }).catch(error => console.error(error))
-    
+
     return (
-        <>
+        <Show when={connected().length > 0 && members().length > 0} fallback={<SpinLoader></SpinLoader>}>
             <div class={styles.top}>
                 <h1>Members</h1>
                 <button class={styles.save_btn} onClick={onSubmitButtonClicked}>
@@ -74,7 +75,7 @@ const Members: Component = () => {
                 </For>
                     
             </div>
-        </>
+        </Show>
     );
 };
 

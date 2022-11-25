@@ -1,6 +1,7 @@
 import { useParams } from "@solidjs/router";
-import { Component, createSignal, For } from "solid-js";
+import { Component, createSignal, For, Show } from "solid-js";
 import Dropdown from "../components/Dropdown";
+import SpinLoader from "../components/SpinLoader";
 import { callAPI } from "../shared/utils";
 
 import styles from './Schedule.module.css';
@@ -37,7 +38,7 @@ const Schedule: Component = () => {
     })
 
     return (
-        <div>
+        <Show when={entries().length > 0 && members().length > 0} fallback={<SpinLoader></SpinLoader>}>
             <div class={styles.top}>
                 <h1>Schedule</h1>
                 <button class={styles.save_btn} onClick={onSubmitButtonClicked}>
@@ -64,7 +65,7 @@ const Schedule: Component = () => {
                     )
                 }
             </For>
-        </div>
+        </Show>
     )
 }
 
