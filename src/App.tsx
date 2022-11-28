@@ -6,6 +6,7 @@ import Home from './views/Home';
 import Dashboard from './views/Dashboard';
 import Members from './views/Members';
 import Schedule from './views/Schedule';
+import Setup from './views/Setup';
 
 const App: Component = () => {
     return (
@@ -16,7 +17,7 @@ const App: Component = () => {
                     <Route path='/' element={<div>Overview</div>} />
                     <Route path='/members' component={Members} />
                     <Route path='/schedule' component={Schedule} />
-                    <Route path='/setup' element={<div>Setup</div>} />
+                    <Route path='/setup' component={Setup} />
                 </Route>
                 <Route path="*" element={<div>404: Unknown route</div>} />
             </Routes>
