@@ -7,6 +7,7 @@ import Dashboard from './views/Dashboard';
 import Members from './views/Members';
 import Schedule from './views/Schedule';
 import Setup from './views/Setup';
+import Settings from './views/Settings';
 
 const App: Component = () => {
     return (
@@ -18,6 +19,7 @@ const App: Component = () => {
                     <Route path='/members' component={Members} />
                     <Route path='/schedule' component={Schedule} />
                     <Route path='/setup' component={Setup} />
+                    <Route path='/settings' component={Settings} />
                 </Route>
                 <Route path="*" element={<div>404: Unknown route</div>} />
             </Routes>
