@@ -4,8 +4,18 @@ import { A, Outlet, useNavigate, useParams } from '@solidjs/router';
 
 import styles from './Dashboard.module.css';
 import Dropdown from "../components/Dropdown";
+import AddBot from "./AddBot";
 
 const GuildCache = new Map<string, any>();
+
+async function updateGuildData(id: string) {
+    const data = await callAPI(`/guilds/${id}`);
+    GuildCache.set(id, data);
+
+    console.log(`[NEW GUILD DATA]`, data);
+    
+    return data;
+}
 
 const Dashboard: Component = () => {
     const navigate = useNavigate();
@@ -20,6 +30,17 @@ const Dashboard: Component = () => {
 
             console.log("Successfully deauthorized.");
             navigate('/');
+        } catch(error) {
+            console.error(error);
+        }
+    }
+
+    const onAddBotSuccess = async () => {
+        try {
+            const data = await updateGuildData(params.id);
+
+            setGuild(data);
+            navigate(`/dashboard/${params.id}/setup`);
         } catch(error) {
             console.error(error);
         }
@@ -48,24 +69,25 @@ const Dashboard: Component = () => {
         if(params.id === undefined) return;
 
         const guild_id = params.id;
+        let data = null;
+
         if(GuildCache.has(guild_id)) {
-            console.log(`[CACHE GUILD DATA]`, GuildCache.get(guild_id));
-            setGuild(GuildCache.get(guild_id));
-            return;
+            data = GuildCache.get(guild_id);
+            console.log(`[CACHE GUILD DATA]`, data);
+        } else {
+            try {
+                data = await updateGuildData(guild_id);
+            } catch(error: any) {
+                console.error(error);
+                if(error.status == 401) { // Unauthorized
+                    navigate('/');
+                }
+            }
         }
         
-        try {
-            const data = await callAPI(`/guilds/${guild_id}`);
-            console.log(`[NEW GUILD DATA]`, data);
-            if(params.id === guild_id) setGuild(data);
-
-            GuildCache.set(guild_id, data);
-        } catch(error: any) {
-            console.error(error);
-            if(error.status == 401) { // Unauthorized
-                navigate('/');
-            }
-            
+        setGuild(data);
+        if(data.is_joined && !data.is_setup) {
+            navigate(`/dashboard/${guild_id}/setup`);
         }
     });
 
@@ -99,7 +121,7 @@ const Dashboard: Component = () => {
                 </div>
             </section>
             <div class={styles.dashboard_container}>
-                <Show when={guild().is_joined} fallback={<div>Not joined</div>}>
+                <Show when={guild().is_joined} fallback={<AddBot callback={onAddBotSuccess}></AddBot>}>
                     <Outlet />
                 </Show>
             </div>

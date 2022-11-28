@@ -16,6 +16,7 @@ const App: Component = () => {
                     <Route path='/' element={<div>Overview</div>} />
                     <Route path='/members' component={Members} />
                     <Route path='/schedule' component={Schedule} />
+                    <Route path='/setup' element={<div>Setup</div>} />
                 </Route>
                 <Route path="*" element={<div>404: Unknown route</div>} />
             </Routes>
