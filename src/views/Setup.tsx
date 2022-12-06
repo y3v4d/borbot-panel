@@ -1,14 +1,15 @@
-import { useParams } from "@solidjs/router";
+import { useNavigate, useParams } from "@solidjs/router";
 import { Component } from "solid-js";
 import { createStore } from 'solid-js/store';
+import { decryptSavedata } from "../shared/savefile";
 import { callAPI } from "../shared/utils";
 
 const Setup: Component = () => {
+    const navigate = useNavigate();
     const params = useParams();
 
     const [form, setForm] = createStore({
-        username: "",
-        pwd: ""
+        data: ""
     });
 
     const updateFormField = (event: Event) => {
@@ -23,9 +24,15 @@ const Setup: Component = () => {
     const onFormSubmit = async (event: Event) => {
         event.preventDefault();
 
+        const save = decryptSavedata(form.data);
+        if(!save) {
+            console.error("Error when parsing save data.");
+            return;
+        }
+
         try {
-            const data = await callAPI(`/guilds/${params.id}/setup`, { uid: form.username, pwd: form.pwd }, 'post');
-            console.log(data);
+            const data = await callAPI(`/guilds/${params.id}/setup`, { uid: save.uniqueId, pwd: save.passwordHash }, 'post');
+            navigate(`/dashboard/${params.id}`);
         } catch(error) {
             console.error(error);
         }
@@ -33,10 +40,7 @@ const Setup: Component = () => {
 
     return (
         <form onSubmit={onFormSubmit}>
-            <label>Username</label>
-            <input id='username' type='text' onInput={updateFormField}></input>
-            <label>Password</label>
-            <input id='pwd' type='password' onInput={updateFormField}></input>
+            <textarea id='data' onInput={updateFormField}></textarea>
             <button type='submit'>Submit</button>
         </form>
     );

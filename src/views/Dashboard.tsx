@@ -5,6 +5,7 @@ import { A, Outlet, useNavigate, useParams } from '@solidjs/router';
 import styles from './Dashboard.module.css';
 import Dropdown from "../components/Dropdown";
 import AddBot from "./AddBot";
+import SpinLoader from "../components/SpinLoader";
 
 const GuildCache = new Map<string, any>();
 
@@ -22,7 +23,7 @@ const Dashboard: Component = () => {
     const params = useParams();
 
     const [guilds, setGuilds] = createSignal<any[]>([]);
-    const [guild, setGuild] = createSignal<any>({});
+    const [guild, setGuild] = createSignal<any>(null);
 
     const onLogoutClicked = async () => {
         try {
@@ -46,8 +47,7 @@ const Dashboard: Component = () => {
         }
     }
 
-    callAPI(`/me/guilds`)
-    .then(data => {
+    callAPI(`/me/guilds`).then(data => {
         console.log(`GUILDS`, data);
         const items: any[] = [];
         for(const item of data) {
@@ -66,7 +66,7 @@ const Dashboard: Component = () => {
     });
 
     createEffect(async () => {
-        if(params.id === undefined) return;
+        if(guilds().length == 0 || params.id === undefined) return;
 
         const guild_id = params.id;
         let data = null;
@@ -94,7 +94,7 @@ const Dashboard: Component = () => {
     return (
         <div class={styles.container}>
             <section class={styles.sidebar}>
-                <Show when={guild().is_setup} fallback={<div class={styles.fill}></div>}>
+                <Show when={guild() != null && guild().is_setup} fallback={<div class={styles.fill}></div>}>
                     <nav class={styles.navigation}>
                         <A end={true} activeClass={styles.navigation_link_active} href={`/dashboard/${params.id}`}>
                             <span class='material-icons'>home</span>
@@ -125,8 +125,10 @@ const Dashboard: Component = () => {
                 </div>
             </section>
             <div class={styles.dashboard_container}>
-                <Show when={guild().is_joined} fallback={<AddBot callback={onAddBotSuccess}></AddBot>}>
-                    <Outlet />
+                <Show when={guild() != null} fallback={<SpinLoader></SpinLoader>}>
+                    <Show when={guild().is_joined} fallback={<AddBot callback={onAddBotSuccess}></AddBot>}>
+                        <Outlet />
+                    </Show>
                 </Show>
             </div>
         </div>
