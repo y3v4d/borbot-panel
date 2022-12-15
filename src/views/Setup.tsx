@@ -3,6 +3,7 @@ import { Component } from "solid-js";
 import { createStore } from 'solid-js/store';
 import { decryptSavedata } from "../shared/savefile";
 import { callAPI } from "../shared/utils";
+import styles from './Setup.module.css';
 
 const Setup: Component = () => {
     const navigate = useNavigate();
@@ -39,10 +40,22 @@ const Setup: Component = () => {
     }
 
     return (
-        <form onSubmit={onFormSubmit}>
-            <textarea id='data' onInput={updateFormField}></textarea>
-            <button type='submit'>Submit</button>
-        </form>
+        <>
+            <div class={styles.mask}></div>
+            <div class={styles.popup}>
+                <div class={styles.top}>
+                    <h3 class={styles.title}>Add save file</h3>
+                    <button class={styles.close_btn}>
+                        <span class='material-icons md-bold'>close</span>
+                    </button>
+                </div>
+                <div class={styles.separator}></div>
+                <form class={styles.middle} onSubmit={onFormSubmit}>
+                    <textarea id='data' class={styles.textarea} placeholder="Paste your save file..." spellcheck={false} onInput={updateFormField}></textarea>
+                    <button class={styles.submit_btn} type='submit'>Submit</button>
+                </form>
+            </div>
+        </>
     );
 };
 
