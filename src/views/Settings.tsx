@@ -1,5 +1,6 @@
 import { useParams } from "@solidjs/router";
 import { Component } from "solid-js";
+import { updateGuildData } from "../shared/cache";
 import { callAPI } from "../shared/utils";
 
 const Settings: Component = () => {
@@ -9,6 +10,8 @@ const Settings: Component = () => {
         try {
             const data = await callAPI(`/guilds/${params.id}/unsetup`, undefined, 'post');
             console.log(data);
+            
+            updateGuildData(params.id);
         } catch(error) {
             console.error(error);
         }

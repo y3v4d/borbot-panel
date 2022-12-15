@@ -26,10 +26,7 @@ const AddBot: Component<{ callback?: () => void }> = (options) => {
     };
 
     return (
-        <div class={styles.container} >
-            <button class={styles.add_button} onClick={onAddClicked}>Add bot to server</button>
-        </div>
-        
+        <button class={styles.add_button} onClick={onAddClicked}>Add bot to server</button>
     );
 };
 

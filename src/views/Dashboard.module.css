@@ -55,6 +55,6 @@
 }
 
 .dashboard_container {
-    overflow-y: scroll;
+    overflow-y: auto;
     flex-grow: 1;
 }

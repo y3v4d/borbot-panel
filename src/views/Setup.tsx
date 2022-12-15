@@ -1,60 +1,52 @@
 import { useNavigate, useParams } from "@solidjs/router";
-import { Component } from "solid-js";
-import { createStore } from 'solid-js/store';
-import { decryptSavedata } from "../shared/savefile";
-import { callAPI } from "../shared/utils";
+import { Component, createSignal, Show } from "solid-js";
+import SavePopup from "../components/SavePopup";
+import { updateGuildData } from "../shared/cache";
+import AddBot from "./AddBot";
 import styles from './Setup.module.css';
 
-const Setup: Component = () => {
+const Setup: Component<{ guild?: any, onFinish?: () => void }> = (props) => {
     const navigate = useNavigate();
     const params = useParams();
 
-    const [form, setForm] = createStore({
-        data: ""
-    });
+    const [showPopup, setShowPopup] = createSignal(false);
 
-    const updateFormField = (event: Event) => {
-        const inputElement = event.currentTarget as HTMLInputElement;
-        const fieldName = inputElement.id;
+    console.log(props.guild);
 
-        setForm({
-            [fieldName]: inputElement.value
-        });
-    };
+    let isBotAdded = props.guild?.is_joined || false;
+    let isClanAdded = props.guild?.is_setup || false;
 
-    const onFormSubmit = async (event: Event) => {
-        event.preventDefault();
+    console.log(`isBotAdded: ${isBotAdded} isClanAdded: ${isClanAdded}`);
 
-        const save = decryptSavedata(form.data);
-        if(!save) {
-            console.error("Error when parsing save data.");
-            return;
-        }
+    const onAddBotSuccess = () => {
+        isBotAdded = true;
+    }
 
-        try {
-            const data = await callAPI(`/guilds/${params.id}/setup`, { uid: save.uniqueId, pwd: save.passwordHash }, 'post');
-            navigate(`/dashboard/${params.id}`);
-        } catch(error) {
-            console.error(error);
+    const onSaveSuccess = () => {
+        isClanAdded = true;
+
+        if(isClanAdded && isBotAdded) {
+            updateGuildData(params.id);
         }
     }
 
     return (
         <>
-            <div class={styles.mask}></div>
-            <div class={styles.popup}>
-                <div class={styles.top}>
-                    <h3 class={styles.title}>Add save file</h3>
-                    <button class={styles.close_btn}>
-                        <span class='material-icons md-bold'>close</span>
-                    </button>
-                </div>
-                <div class={styles.separator}></div>
-                <form class={styles.middle} onSubmit={onFormSubmit}>
-                    <textarea id='data' class={styles.textarea} placeholder="Paste your save file..." spellcheck={false} onInput={updateFormField}></textarea>
-                    <button class={styles.submit_btn} type='submit'>Submit</button>
-                </form>
+            <h1>Setup</h1>
+            <div class={styles.step_container}>
+                <div>Step 1: Add the Borbot to your Discord Server</div>
+                <AddBot callback={onAddBotSuccess}></AddBot>
             </div>
+            <div class={styles.step_container}>
+                <div>Step 2: Add your clan by uploading your Clicker Heroes save file</div>
+                <button onClick={() => setShowPopup(true)}>Upload</button>
+            </div>
+            <Show when={showPopup()}>
+                <SavePopup 
+                    onClose={() => setShowPopup(false)}
+                    onSuccess={onSaveSuccess}
+                ></SavePopup>
+            </Show>
         </>
     );
 };
