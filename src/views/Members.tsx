@@ -45,7 +45,7 @@ const Members: Component = () => {
     }).catch(error => console.error(error))
 
     return (
-        <Show when={connected().length > 0 && members().length > 0} fallback={<SpinLoader></SpinLoader>}>
+        <Show when={members().length > 0} fallback={<SpinLoader></SpinLoader>}>
             <div class={styles.top}>
                 <h1>Members</h1>
                 <button class={styles.save_btn} onClick={onSubmitButtonClicked}>
@@ -64,7 +64,9 @@ const Members: Component = () => {
                                     callback={(id: string) => {
                                         const current = connected();
                                         const option = current.find(o => o.clan_uid === member.uid);
-                                        option.guild_uid = id;
+                                        
+                                        if(option) option.guild_uid = id;
+                                        else current.push({ guild_id: id, clan_uid: member.uid });
 
                                         setConnected(current);
                                     }}
