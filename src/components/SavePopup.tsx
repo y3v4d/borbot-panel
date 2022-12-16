@@ -5,7 +5,7 @@ import { decryptSavedata } from "../shared/savefile";
 import { callAPI } from "../shared/utils";
 import styles from "./SavePopup.module.css";
 
-const SavePopup: Component<{ onClose?: () => void, onSuccess?: () => void }> = (props) => {
+const SavePopup: Component<{ onClose?: () => void, onComplete?: (error?: any) => void }> = (props) => {
     const navigate = useNavigate();
     const params = useParams();
 
@@ -35,9 +35,9 @@ const SavePopup: Component<{ onClose?: () => void, onSuccess?: () => void }> = (
             const data = await callAPI(`/guilds/${params.id}/setup`, { uid: save.uniqueId, pwd: save.passwordHash }, 'post');
             console.log(data);
 
-            if(props.onSuccess) props.onSuccess();
+            if(props.onComplete) props.onComplete();
         } catch(error) {
-            console.error(error);
+            if(props.onComplete) props.onComplete(error); 
         }
     }
 

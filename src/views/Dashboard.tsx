@@ -15,8 +15,6 @@ const Dashboard: Component = () => {
     const [guilds, setGuilds] = createSignal<any[]>([]);
     const [guild, setGuild] = createSignal<any>(null);
 
-    
-
     const onLogoutClicked = async () => {
         try {
             await callAPI('/auth/logout', {}, 'post');
