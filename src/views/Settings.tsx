@@ -18,7 +18,10 @@ const Settings: Component = () => {
     }
 
     return (
-        <button onClick={onUnlinkButtonClicked}>Unlink clan</button>
+        <>
+            <button onClick={onUnlinkButtonClicked}>Unlink clan</button>
+            <div style="height: 1000px;"></div>
+        </>
     )
 };
 

@@ -22,10 +22,10 @@ const Dropdown: Component<any> = (params) => {
 
     return (
         <div id="dropdown" class={styles.dropdown} onClick={() => setDropped(!dropped())}>
-            <div id={option() ? option().id : ""} class={styles.item}>
+            <div id={option() ? option().id : ""} class={styles.item_selected}>
                 <Show when={option()} fallback={<div class={styles.img_temp}></div>}>
-                    <img src={option().icon}></img>
-                    <p>{option().content}</p>
+                    <img class={styles.icon} src={option().icon}></img>
+                    <p class={styles.content}>{option().content}</p>
                 </Show>
             </div>
             <div class={styles.list} classList={{[styles.show]: dropped(), [styles.going_up]: params.up}}>
@@ -38,8 +38,8 @@ const Dropdown: Component<any> = (params) => {
                                 classList={{[styles.selected]: selected() == item.id}} 
                                 onClick={onItemClicked}
                             >
-                                <img src={item.icon}></img>
-                                <p>{item.content}</p>
+                                <img class={styles.icon} src={item.icon}></img>
+                                <p class={styles.content}>{item.content}</p>
                             </div>
                         )
                     }

@@ -1,6 +1,35 @@
+.menu_button {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+
+    transform: translateY(-50%);
+
+    cursor: pointer;
+
+    background-color: transparent;
+
+    border: none;
+    border-radius: 4px;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    padding: 2px;
+}
+
+.menu_button_active {
+    font-weight: bold;
+}
+
 .container {
+    position: relative;
+    
     display: flex;
-    height: 100%;
+    flex-grow: 1;
+
+    overflow-y: hidden;
 }
 
 .sidebar {
@@ -8,6 +37,26 @@
     flex-direction: column;
 
     background-color: #2E3440;
+}
+
+.show {
+    display: flex !important;
+}
+
+@media screen and (max-width: 600px) {
+    .sidebar {
+        position: absolute;
+        z-index: 1;
+
+        height: 100%;
+        width: 100%;
+
+        display: none;
+    }
+
+    .menu_button {
+        display: flex;
+    }
 }
 
 .sidebar_bottom {
@@ -56,6 +105,7 @@
 
 .dashboard_container {
     overflow-y: auto;
+
     flex-grow: 1;
 
     padding: 16px;
