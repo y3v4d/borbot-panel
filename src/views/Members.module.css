@@ -22,12 +22,19 @@
 }
 
 .item {
+    background-color: #2E3440;
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    
     display: flex;
 
     align-items: center;
 }
 
 .item p {
+    color: #D8DEE9;
+    font-weight: bold;
     min-width: 200px;
 }
 

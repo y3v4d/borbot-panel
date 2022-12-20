@@ -6,7 +6,6 @@ import { callAPI } from "../shared/utils";
 
 import styles from './Members.module.css';
 
-const ConnectedCache = new Map<string, any>();
 const Members: Component = () => {
     const [clanMembers, setClanMembers] = createSignal<any[]>([]);
     const [members, setMembers] = createSignal<any[]>([]);
@@ -23,9 +22,7 @@ const Members: Component = () => {
     callAPI(`/guilds/${guild_id}/connected`)
     .then(data => {
         console.log(`[NEW CONNECTED LIST]`, data);
-
         setConnected(data);
-        ConnectedCache.set(guild_id, data);
 
         callAPI(`/guilds/${guild_id}/members`)
         .then(data => {
@@ -38,6 +35,10 @@ const Members: Component = () => {
                     content: o.username,
                 }
             });
+
+            (data.clan as any[]).sort((self, other) => {
+                return self.nickname.toLowerCase().charCodeAt(0) - other.nickname.toLowerCase().charCodeAt(0);
+            })
 
             setClanMembers(data.clan);
             setMembers(guildMembers);
