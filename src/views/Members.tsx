@@ -47,12 +47,7 @@ const Members: Component = () => {
 
     return (
         <Show when={members().length > 0} fallback={<SpinLoader></SpinLoader>}>
-            <div class={styles.top}>
-                <h1>Members</h1>
-                <button class={styles.save_btn} onClick={onSubmitButtonClicked}>
-                    <span class='material-icons'>done</span>
-                </button>
-            </div>
+            <h1 class={styles.header}>Members</h1>
             <div class={styles.container}>
                 <For each={clanMembers()}>
                     {
@@ -76,8 +71,10 @@ const Members: Component = () => {
                         )
                     }
                 </For>
-                    
             </div>
+            <button class={styles.save_btn} onClick={onSubmitButtonClicked}>
+                <span class='material-icons'>done</span>
+            </button>
         </Show>
     );
 };

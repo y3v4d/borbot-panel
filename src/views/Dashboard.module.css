@@ -43,7 +43,7 @@
     display: flex !important;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 700px) {
     .sidebar {
         position: absolute;
         z-index: 1;
