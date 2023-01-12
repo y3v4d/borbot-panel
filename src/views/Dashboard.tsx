@@ -7,6 +7,7 @@ import Dropdown from "../components/Dropdown";
 import SpinLoader from "../components/SpinLoader";
 import Setup from "./Setup";
 import { addGuildUpdateCallback, removeGuildUpdateCallbacks, updateGuildData } from "../shared/cache";
+import { API } from "../shared/api";
 
 const Dashboard: Component = () => {
     const navigate = useNavigate();
@@ -29,8 +30,9 @@ const Dashboard: Component = () => {
         }
     }
 
-    callAPI(`/me/guilds`).then(data => {
+    API.getUserGuilds().then(data => {
         console.log(`GUILDS`, data);
+
         const items: any[] = [];
         for(const item of data) {
             if(item.isAdmin) {

@@ -2,31 +2,29 @@ import { useParams } from "@solidjs/router";
 import { Component, createSignal, For, Show } from "solid-js";
 import Dropdown from "../components/Dropdown";
 import SpinLoader from "../components/SpinLoader";
-import { callAPI } from "../shared/utils";
+import { API } from "../shared/api";
 
 import styles from './Schedule.module.css';
 
 const Schedule: Component = () => {
-    const [entries, setEntries] = createSignal<any[]>([]);
+    const [entries, setEntries] = createSignal<API.GuildScheduleEntry[]>([]);
     const [members, setMembers] = createSignal<any[]>([]);
 
     const params = useParams();
     const guild_id = params.id;
 
     const onSubmitButtonClicked = async () => {
-        const result = await callAPI(`/guilds/${guild_id}/schedule`, { data: entries() }, 'post');
+        const result = await API.postGuildSchedule(guild_id, entries());
         console.log(result);
     };
 
-    callAPI(`/guilds/${guild_id}/schedule`)
-    .then(data => {
+    API.getGuildSchedule(guild_id).then(data => {
         setEntries(data.entries);
         console.log(data);
-    });
+    }).catch(error => console.error(error));
 
-    callAPI(`/guilds/${guild_id}/members`)
-    .then(data => {
-        const guildMembers = data.guild.map((o: any) => {
+    API.getGuildMembers(guild_id).then(data => {
+        const guildMembers = data.guild.map((o) => {
             return {
                 id: o.id,
                 icon: o.avatar,
@@ -35,7 +33,7 @@ const Schedule: Component = () => {
         });
 
         setMembers(guildMembers);
-    })
+    });
 
     return (
         <Show when={entries().length > 0 && members().length > 0} fallback={<SpinLoader></SpinLoader>}>
@@ -47,15 +45,15 @@ const Schedule: Component = () => {
             </div>
             <For each={entries()}>
                 {
-                    (entry: any) => (
-                        <div id={entry.index} class={styles.item}>
+                    entry => (
+                        <div id={entry.index.toString()} class={styles.item}>
                             <p class={styles.item_p}>{entry.index}</p>
                             <Dropdown 
                                 items={members()}
                                 selected={entry.uid}
                                 callback={(id: string) => {
                                     const current = entries();
-                                    const found = current.find(o => o.index == entry.index);
+                                    const found = current.find(o => o.index == entry.index)!;
                                     found.uid = id;
 
                                     setEntries(current);

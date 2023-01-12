@@ -6,7 +6,6 @@ import AddBot from "./AddBot";
 import styles from './Setup.module.css';
 
 const Setup: Component<{ guild?: any, onFinish?: () => void }> = (props) => {
-    const navigate = useNavigate();
     const params = useParams();
 
     const [isBotAdded, setIsBotAdded] = createSignal(props.guild?.is_joined || false);
