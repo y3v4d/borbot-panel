@@ -62,7 +62,7 @@ const Members: Component = () => {
                                         const option = current.find(o => o.clan_uid === member.uid);
                                         
                                         if(option) option.guild_uid = id;
-                                        else current.push({ guild_id: id, clan_uid: member.uid });
+                                        else current.push({ guild_uid: id, clan_uid: member.uid });
 
                                         setConnected(current);
                                     }}
