@@ -1,8 +1,8 @@
 import { useParams } from "@solidjs/router";
 import { Component, createSignal, For, Show } from "solid-js";
-import Dropdown from "../components/Dropdown";
-import SpinLoader from "../components/SpinLoader";
-import { API } from "../shared/api";
+import Dropdown from "../../components/Dropdown";
+import SpinLoader from "../../components/SpinLoader";
+import { API } from "../../shared/api";
 
 import styles from './Members.module.css';
 

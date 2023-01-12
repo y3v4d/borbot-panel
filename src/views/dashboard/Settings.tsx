@@ -1,7 +1,7 @@
 import { useParams } from "@solidjs/router";
 import { Component } from "solid-js";
-import { updateGuildData } from "../shared/cache";
-import { callAPI } from "../shared/utils";
+import { updateGuildData } from "../../shared/cache";
+import { callAPI } from "../../shared/utils";
 
 const Settings: Component = () => {
     const params = useParams();

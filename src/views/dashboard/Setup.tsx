@@ -1,8 +1,8 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { Component, createSignal, Show } from "solid-js";
-import SavePopup from "../components/SavePopup";
-import { updateGuildData } from "../shared/cache";
-import AddBot from "./AddBot";
+import SavePopup from "../../components/SavePopup";
+import { updateGuildData } from "../../shared/cache";
+import AddBot from "../../components/AddBot";
 import styles from './Setup.module.css';
 
 const Setup: Component<{ guild?: any, onFinish?: () => void }> = (props) => {

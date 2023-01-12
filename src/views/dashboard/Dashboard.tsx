@@ -1,13 +1,13 @@
 import { Component, createEffect, createSignal, Show } from "solid-js";
-import { callAPI } from "../shared/utils";
+import { callAPI } from "../../shared/utils";
 import { A, Outlet, useNavigate, useParams } from '@solidjs/router';
 
 import styles from './Dashboard.module.css';
-import Dropdown from "../components/Dropdown";
-import SpinLoader from "../components/SpinLoader";
+import Dropdown from "../../components/Dropdown";
+import SpinLoader from "../../components/SpinLoader";
 import Setup from "./Setup";
-import { addGuildUpdateCallback, removeGuildUpdateCallbacks, updateGuildData } from "../shared/cache";
-import { API } from "../shared/api";
+import { addGuildUpdateCallback, removeGuildUpdateCallbacks, updateGuildData } from "../../shared/cache";
+import { API } from "../../shared/api";
 
 const Dashboard: Component = () => {
     const navigate = useNavigate();

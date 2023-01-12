@@ -2,12 +2,12 @@ import type { Component } from 'solid-js';
 import { Routes, Route } from '@solidjs/router';
 
 import './App.module.css';
-import Home from './views/Home';
-import Dashboard from './views/Dashboard';
-import Members from './views/Members';
-import Schedule from './views/Schedule';
-import Setup from './views/Setup';
-import Settings from './views/Settings';
+import Home from './views/home/Home';
+import Dashboard from './views/dashboard/Dashboard';
+import Members from './views/dashboard/Members';
+import Schedule from './views/dashboard/Schedule';
+import Setup from './views/dashboard/Setup';
+import Settings from './views/dashboard/Settings';
 
 const App: Component = () => {
     return (
