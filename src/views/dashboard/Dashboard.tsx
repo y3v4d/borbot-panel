@@ -48,6 +48,7 @@ const Dashboard: Component = () => {
 
     createEffect(async () => {
         if(guilds().length == 0 || params.id === undefined) return;
+        setGuild(null);
 
         const cache = GuildCache.getGuild(params.id);
         if(!cache || !cache.isAdmin) {
@@ -56,7 +57,6 @@ const Dashboard: Component = () => {
         }
 
         await cache.fetch();
-        console.log('Setting guild', cache);
         setGuild(cache);
         
         cache.watch(g => {
@@ -128,7 +128,7 @@ const Dashboard: Component = () => {
                     </div>
                 </section>
                 <div class={styles.dashboard_container}>
-                    <Show when={guild()?.extended} fallback={<SpinLoader></SpinLoader>}>
+                    <Show when={guilds() && guild()?.extended} fallback={<SpinLoader></SpinLoader>}>
                         <Show 
                             when={guild()?.is_joined && guild()?.is_setup} 
                             fallback={<Setup guild={guild()}></Setup>
