@@ -3,6 +3,7 @@ import { Component, createSignal, For, Show } from "solid-js";
 import Dropdown from "../../components/Dropdown";
 import SpinLoader from "../../components/SpinLoader";
 import { API } from "../../shared/api";
+import GuildCache from "../../shared/cache";
 
 import styles from './Members.module.css';
 
@@ -14,33 +15,32 @@ const Members: Component = () => {
     const params = useParams();
     const guild_id = params.id;
 
+    const guild = GuildCache.getGuild(guild_id)!;
+
     const onSubmitButtonClicked = async () => {
         const result = await API.postGuildConnected(guild_id, connected());
         console.log(result);
     };
 
-    API.getGuildConnected(guild_id).then(data => {
+    API.getGuildConnected(guild_id).then(async data => {
         console.log(`[NEW CONNECTED LIST]`, data);
         setConnected(data);
 
-        API.getGuildMembers(guild_id).then(data => {
-            console.log(data);
+        await guild.fetchMembers();
 
-            const guildMembers = data.guild.map((o) => {
-                return {
-                    id: o.id,
-                    icon: o.avatar,
-                    content: o.username,
-                }
-            });
+        const guildItems = guild.members.map(o => ({
+            id: o.id,
+            icon: o.avatar,
+            content: o.username
+        }));
 
-            data.clan.sort((self, other) => {
-                return self.nickname.toLowerCase().charCodeAt(0) - other.nickname.toLowerCase().charCodeAt(0);
-            })
+        const clanItems = guild.clanMembers.map(o => ({
+            uid: o.uid,
+            nickname: o.nickname
+        }));
 
-            setClanMembers(data.clan);
-            setMembers(guildMembers);
-        }).catch(error => console.error(error));
+        setClanMembers(clanItems);
+        setMembers(guildItems);
     }).catch(error => console.error(error))
 
     return (

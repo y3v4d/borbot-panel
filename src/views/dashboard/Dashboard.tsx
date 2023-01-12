@@ -6,15 +6,14 @@ import styles from './Dashboard.module.css';
 import Dropdown from "../../components/Dropdown";
 import SpinLoader from "../../components/SpinLoader";
 import Setup from "./Setup";
-import { addGuildUpdateCallback, removeGuildUpdateCallbacks, updateGuildData } from "../../shared/cache";
-import { API } from "../../shared/api";
+import GuildCache, { Guild } from "../../shared/cache";
 
 const Dashboard: Component = () => {
     const navigate = useNavigate();
     const params = useParams();
 
     const [guilds, setGuilds] = createSignal<any[]>([]);
-    const [guild, setGuild] = createSignal<any>(null);
+    const [guild, setGuild] = createSignal<Guild | null>(null, { equals: false });
     const [showSidebar, setShowSidebar] = createSignal(false);
 
     let sidebar: HTMLElement | undefined;
@@ -30,21 +29,19 @@ const Dashboard: Component = () => {
         }
     }
 
-    API.getUserGuilds().then(data => {
-        console.log(`GUILDS`, data);
-
+    GuildCache.fetch().then(() => {
         const items: any[] = [];
-        for(const item of data) {
-            if(item.isAdmin) {
-                items.push({ content: item.name, icon: item.icon, id: item.id });
+        for(const guild of GuildCache.guilds) {
+            if(guild.isAdmin) {
+                items.push({ content: guild.name, icon: guild.icon, id: guild.id });
             }
         }
-        
+
         setGuilds(items);
-    }).catch(error => {
+    }).catch((error: any) => {
         console.error(error);
 
-        if(error.status == 401) {
+        if(error.status === 401) {
             navigate('/');
         }
     });
@@ -52,22 +49,21 @@ const Dashboard: Component = () => {
     createEffect(async () => {
         if(guilds().length == 0 || params.id === undefined) return;
 
-        const guild_id = params.id;
-        
-        removeGuildUpdateCallbacks();
-        addGuildUpdateCallback(guild_id, (guild) => {
-            console.log("Updating guild in Dashboard...");
-            setGuild(guild);
-        });
-
-        try {
-            await updateGuildData(guild_id);
-        } catch(error: any) {
-            console.error(error);
-            if(error.status == 401) { // Unauthorized
-                navigate('/');
-            }
+        const cache = GuildCache.getGuild(params.id);
+        if(!cache || !cache.isAdmin) {
+            navigate('/');
+            return;
         }
+
+        await cache.fetch();
+        console.log('Setting guild', cache);
+        setGuild(cache);
+        
+        cache.watch(g => {
+            if(g.id !== params.id) return;
+
+            setGuild(g);
+        });
     });
 
     return (
@@ -81,7 +77,7 @@ const Dashboard: Component = () => {
             </header>
             <div class={styles.container}>
                 <section ref={sidebar!} class={styles.sidebar} classList={{ [styles.show]: showSidebar() }}>
-                    <Show when={guild() != null && guild().is_setup} fallback={<div class={styles.fill}></div>}>
+                    <Show when={guild()?.is_setup} fallback={<div class={styles.fill}></div>}>
                         <nav class={styles.navigation}>
                             <A 
                                 onClick={() => setShowSidebar(false)} 
@@ -132,9 +128,9 @@ const Dashboard: Component = () => {
                     </div>
                 </section>
                 <div class={styles.dashboard_container}>
-                    <Show when={guild() != null} fallback={<SpinLoader></SpinLoader>}>
+                    <Show when={guild()?.extended} fallback={<SpinLoader></SpinLoader>}>
                         <Show 
-                            when={guild().is_joined && guild().is_setup} 
+                            when={guild()?.is_joined && guild()?.is_setup} 
                             fallback={<Setup guild={guild()}></Setup>
                         }>
                             <Outlet />

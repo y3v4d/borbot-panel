@@ -45,29 +45,34 @@ export namespace API {
         id: string,
         name: string,
         icon: string,
+        permissions: string,
+        isAdmin: boolean,
         is_setup: boolean,
         is_joined: boolean
     }
 
+    export type GuildMember = {
+        id: string,
+        disc: string,
+        username: string,
+        avatar: string,
+        nickname: string
+    }
+
+    export type ClanMember = {
+        uid: string,
+        highestZone: number,
+        nickname: string,
+        class: number,
+        level: number,
+
+        lastRewardTimestamp: string,
+        lastBonusRewardTimestamp: string
+    }
+
     export type GuildMembers = {
-        clan: {
-            uid: string,
-            highestZone: number,
-            nickname: string,
-            class: number,
-            level: number,
-
-            lastRewardTimestamp: string,
-            lastBonusRewardTimestamp: string
-        }[],
-
-        guild: {
-            id: string,
-            disc: string,
-            username: string,
-            avatar: string,
-            nickname: string
-        }[]
+        clan: ClanMember[],
+        guild: GuildMember[]
     }
 
     export type GuildConnected = {

@@ -3,6 +3,7 @@ import { Component, createSignal, For, Show } from "solid-js";
 import Dropdown from "../../components/Dropdown";
 import SpinLoader from "../../components/SpinLoader";
 import { API } from "../../shared/api";
+import GuildCache from "../../shared/cache";
 
 import styles from './Schedule.module.css';
 
@@ -12,28 +13,27 @@ const Schedule: Component = () => {
 
     const params = useParams();
     const guild_id = params.id;
+    const guild = GuildCache.getGuild(guild_id)!;
 
     const onSubmitButtonClicked = async () => {
         const result = await API.postGuildSchedule(guild_id, entries());
         console.log(result);
     };
 
-    API.getGuildSchedule(guild_id).then(data => {
+    API.getGuildSchedule(guild_id).then(async data => {
         setEntries(data.entries);
         console.log(data);
+
+        await guild.fetchMembers();
+
+        const items = guild.members.map(o => ({
+            id: o.id,
+            icon: o.avatar,
+            content: o.username
+        }));
+
+        setMembers(items);
     }).catch(error => console.error(error));
-
-    API.getGuildMembers(guild_id).then(data => {
-        const guildMembers = data.guild.map((o) => {
-            return {
-                id: o.id,
-                icon: o.avatar,
-                content: o.username
-            }
-        });
-
-        setMembers(guildMembers);
-    });
 
     return (
         <Show when={entries().length > 0 && members().length > 0} fallback={<SpinLoader></SpinLoader>}>

@@ -1,9 +1,10 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { Component, createSignal, Show } from "solid-js";
 import SavePopup from "../../components/SavePopup";
-import { updateGuildData } from "../../shared/cache";
+//import { updateGuildData } from "../../shared/cache";
 import AddBot from "../../components/AddBot";
 import styles from './Setup.module.css';
+import GuildCache from "../../shared/cache";
 
 const Setup: Component<{ guild?: any, onFinish?: () => void }> = (props) => {
     const params = useParams();
@@ -25,7 +26,13 @@ const Setup: Component<{ guild?: any, onFinish?: () => void }> = (props) => {
         if(error) {
             console.error(error);
 
-            try {
+            const cache = GuildCache.getGuild(params.id)!;
+
+            isClanAdded = cache.is_setup;
+            setIsBotAdded(cache.is_joined);
+            setShowPopup(false);
+
+            /*try {
                 const data = await updateGuildData(params.id);
                 
                 isClanAdded = data.is_setup;
@@ -33,7 +40,7 @@ const Setup: Component<{ guild?: any, onFinish?: () => void }> = (props) => {
                 setShowPopup(false);
             } catch(error: any) {
                 console.error(error);
-            }
+            }*/
 
             return;
         }
@@ -41,7 +48,9 @@ const Setup: Component<{ guild?: any, onFinish?: () => void }> = (props) => {
         isClanAdded = true;
 
         if(isClanAdded && isBotAdded()) {
-            updateGuildData(params.id);
+            const cache = GuildCache.getGuild(params.id)!;
+            await cache.fetch(true);
+            //updateGuildData(params.id);
         }
     }
 
