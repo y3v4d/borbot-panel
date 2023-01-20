@@ -1,5 +1,4 @@
 import { Component } from "solid-js";
-
 import styles from './SpinLoader.module.css';
 
 const SpinLoader: Component = () => {

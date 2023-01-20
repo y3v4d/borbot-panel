@@ -1,12 +1,16 @@
-import { useNavigate, useParams } from "@solidjs/router";
+import { useParams } from "@solidjs/router";
 import { Component } from "solid-js";
 import { createStore } from "solid-js/store";
 import { decryptSavedata } from "../shared/savefile";
 import { callAPI } from "../shared/utils";
 import styles from "./SavePopup.module.css";
 
-const SavePopup: Component<{ onClose?: () => void, onComplete?: (error?: any) => void }> = (props) => {
-    const navigate = useNavigate();
+interface SavePopupProperties {
+    onClose?: () => void, 
+    onComplete?: (error?: any) => void
+}
+
+const SavePopup: Component<SavePopupProperties> = (props) => {
     const params = useParams();
 
     const [form, setForm] = createStore({

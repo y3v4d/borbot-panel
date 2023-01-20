@@ -3,7 +3,7 @@ import { callAPI } from "../../shared/utils";
 import { A, Outlet, useNavigate, useParams } from '@solidjs/router';
 
 import styles from './Dashboard.module.css';
-import Dropdown from "../../components/Dropdown";
+import Dropdown, { DropdownItem } from "../../components/Dropdown";
 import SpinLoader from "../../components/SpinLoader";
 import Setup from "./Setup";
 import GuildCache, { Guild } from "../../shared/cache";
@@ -12,8 +12,8 @@ const Dashboard: Component = () => {
     const navigate = useNavigate();
     const params = useParams();
 
-    const [guilds, setGuilds] = createSignal<any[]>([]);
-    const [guild, setGuild] = createSignal<Guild | null>(null, { equals: false });
+    const [guildList, setGuildList] = createSignal<DropdownItem[]>([]);
+    const [currentGuild, setCurrentGuild] = createSignal<Guild | null>(null, { equals: false });
     const [showSidebar, setShowSidebar] = createSignal(false);
 
     let sidebar: HTMLElement | undefined;
@@ -30,14 +30,14 @@ const Dashboard: Component = () => {
     }
 
     GuildCache.fetch().then(() => {
-        const items: any[] = [];
+        const items: DropdownItem[] = [];
         for(const guild of GuildCache.guilds) {
             if(guild.isAdmin) {
                 items.push({ content: guild.name, icon: guild.icon, id: guild.id });
             }
         }
 
-        setGuilds(items);
+        setGuildList(items);
     }).catch((error: any) => {
         console.error(error);
 
@@ -47,22 +47,22 @@ const Dashboard: Component = () => {
     });
 
     createEffect(async () => {
-        if(guilds().length == 0 || params.id === undefined) return;
-        setGuild(null);
+        if(guildList().length == 0 || params.id === undefined) return;
+        setCurrentGuild(null);
 
-        const cache = GuildCache.getGuild(params.id);
-        if(!cache || !cache.isAdmin) {
+        const guild = GuildCache.getGuild(params.id);
+        if(!guild || !guild.isAdmin) {
             navigate('/');
             return;
         }
 
-        await cache.fetch();
-        setGuild(cache);
+        await guild.fetch();
+        setCurrentGuild(guild);
         
-        cache.watch(g => {
+        guild.watch(g => {
             if(g.id !== params.id) return;
 
-            setGuild(g);
+            setCurrentGuild(g);
         });
     });
 
@@ -77,7 +77,7 @@ const Dashboard: Component = () => {
             </header>
             <div class={styles.container}>
                 <section ref={sidebar!} class={styles.sidebar} classList={{ [styles.show]: showSidebar() }}>
-                    <Show when={guild()?.is_setup} fallback={<div class={styles.fill}></div>}>
+                    <Show when={currentGuild()?.is_setup} fallback={<div class={styles.fill}></div>}>
                         <nav class={styles.navigation}>
                             <A 
                                 onClick={() => setShowSidebar(false)} 
@@ -119,7 +119,7 @@ const Dashboard: Component = () => {
                     </Show>
                     <div class={styles.sidebar_bottom}>
                         <Dropdown 
-                            items={guilds()} 
+                            items={guildList()} 
                             up={true} 
                             selected={params.id}
                             callback={(id: string) => navigate(`/dashboard/${id}`)}
@@ -128,11 +128,11 @@ const Dashboard: Component = () => {
                     </div>
                 </section>
                 <div class={styles.dashboard_container}>
-                    <Show when={guilds() && guild()?.extended} fallback={<SpinLoader></SpinLoader>}>
+                    <Show when={guildList() && currentGuild()?.extended} fallback={<SpinLoader></SpinLoader>}>
                         <Show 
-                            when={guild()?.is_joined && guild()?.is_setup} 
-                            fallback={<Setup guild={guild()}></Setup>
-                        }>
+                            when={currentGuild()?.is_joined && currentGuild()?.is_setup} 
+                            fallback={<Setup></Setup>}
+                        >
                             <Outlet />
                         </Show>
                     </Show>

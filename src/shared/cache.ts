@@ -2,7 +2,7 @@ import { API } from "./api";
 
 export type GuildUpdateCallback = (guild: Guild) => void;
 
-class ClanMember {
+export class ClanMember {
     public uid: string = "";
     public highestZone: number = 0;
     public nickname: string = "";
@@ -24,7 +24,7 @@ class ClanMember {
     }
 }
 
-class GuildMember {
+export class GuildMember {
     public id: string;
     public disc: string;
     public username: string;
@@ -73,7 +73,6 @@ export class Guild {
 
     async fetch(force = false) {
         if(!force && this.extended) {
-            console.warn('Already extended');
             return;
         }
 
@@ -90,16 +89,17 @@ export class Guild {
 
         this.extended = true;
 
+        console.log(`[GUILD ${this.id} FETCHED]`, this);
+
         if(this.watchCallback) {
             this.watchCallback(this);
         } else {
-            console.log('no callback')
+            console.log(`No callback assigned for ${this.id}`);
         }
     }
 
     async fetchMembers(force = false) {
         if(!force && this.members.length > 0 && this.clanMembers.length > 0) {
-            console.warn('Already fetched');
             return;
         }
 
@@ -116,13 +116,15 @@ export class Guild {
             for(const member of data.clan) {
                 this.clanMembers.push(new ClanMember(member));
             }
+
+            console.log(`[MEMBERS FETCHED FOR ${this.id}]`, this.members, this.clanMembers);
         } catch(error) {
             throw error;
         }
     }
 }
 
-class GuildManager {
+export class GuildManager {
     public guilds: Guild[] = [];
     public callbacks: Map<string, GuildUpdateCallback> = new Map();
     
@@ -136,7 +138,7 @@ class GuildManager {
                 this.guilds.push(new Guild(guild));
             }
 
-            console.log(`[FETCHED ALL GUILDS]`, this.guilds);
+            console.log(`[ALL GUILDS LIGHT FETCHED]`, this.guilds);
         } catch(error) {
             throw error;
         }

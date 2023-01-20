@@ -1,15 +1,15 @@
 import { useParams } from "@solidjs/router";
 import { Component, createSignal, For, Show } from "solid-js";
-import Dropdown from "../../components/Dropdown";
+import Dropdown, { DropdownItem } from "../../components/Dropdown";
 import SpinLoader from "../../components/SpinLoader";
 import { API } from "../../shared/api";
-import GuildCache from "../../shared/cache";
+import GuildCache, { ClanMember } from "../../shared/cache";
 
 import styles from './Members.module.css';
 
 const Members: Component = () => {
-    const [clanMembers, setClanMembers] = createSignal<any[]>([]);
-    const [members, setMembers] = createSignal<any[]>([]);
+    const [clanMembers, setClanMembers] = createSignal<ClanMember[]>([]);
+    const [guildMembersList, setGuildMembersList] = createSignal<DropdownItem[]>([]);
     const [connected, setConnected] = createSignal<API.GuildConnected[]>([]);
 
     const params = useParams();
@@ -28,23 +28,18 @@ const Members: Component = () => {
 
         await guild.fetchMembers();
 
-        const guildItems = guild.members.map(o => ({
+        const membersList: DropdownItem[] = guild.members.map(o => ({
             id: o.id,
             icon: o.avatar,
             content: o.username
         }));
 
-        const clanItems = guild.clanMembers.map(o => ({
-            uid: o.uid,
-            nickname: o.nickname
-        }));
-
-        setClanMembers(clanItems);
-        setMembers(guildItems);
+        setClanMembers(guild.clanMembers);
+        setGuildMembersList(membersList);
     }).catch(error => console.error(error))
 
     return (
-        <Show when={members().length > 0} fallback={<SpinLoader></SpinLoader>}>
+        <Show when={guildMembersList().length > 0} fallback={<SpinLoader></SpinLoader>}>
             <h1 class={styles.header}>Members</h1>
             <div class={styles.container}>
                 <For each={clanMembers()}>
@@ -53,7 +48,7 @@ const Members: Component = () => {
                             <div id={member.uid} class={styles.item}>
                                 <p>{member.nickname}</p>
                                 <Dropdown 
-                                    items={members()} 
+                                    items={guildMembersList()} 
                                     selected={connected().find(o => o.clan_uid === member.uid)?.guild_uid}
                                     callback={(id: string) => {
                                         const current = connected();

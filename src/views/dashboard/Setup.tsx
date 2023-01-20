@@ -1,22 +1,18 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { Component, createSignal, Show } from "solid-js";
 import SavePopup from "../../components/SavePopup";
-//import { updateGuildData } from "../../shared/cache";
 import AddBot from "../../components/AddBot";
 import styles from './Setup.module.css';
-import GuildCache from "../../shared/cache";
+import GuildCache, { Guild } from "../../shared/cache";
 
-const Setup: Component<{ guild?: any, onFinish?: () => void }> = (props) => {
+const Setup: Component = () => {
     const params = useParams();
 
-    const [isBotAdded, setIsBotAdded] = createSignal(props.guild?.is_joined || false);
+    const guild = GuildCache.getGuild(params.id)!;
+    let isClanAdded = guild.is_setup;
+
+    const [isBotAdded, setIsBotAdded] = createSignal(guild.is_joined);
     const [showPopup, setShowPopup] = createSignal(false);
-
-    console.log(props.guild);
-
-    let isClanAdded = props.guild?.is_setup || false;
-
-    console.log(`isBotAdded: ${isBotAdded()} isClanAdded: ${isClanAdded}`);
 
     const onAddBotSuccess = () => {
         setIsBotAdded(true);
@@ -24,23 +20,11 @@ const Setup: Component<{ guild?: any, onFinish?: () => void }> = (props) => {
 
     const onSaveComplete = async (error: any) => {
         if(error) {
-            console.error(error);
+            const guild = GuildCache.getGuild(params.id)!;
 
-            const cache = GuildCache.getGuild(params.id)!;
-
-            isClanAdded = cache.is_setup;
-            setIsBotAdded(cache.is_joined);
+            isClanAdded = guild.is_setup;
+            setIsBotAdded(guild.is_joined);
             setShowPopup(false);
-
-            /*try {
-                const data = await updateGuildData(params.id);
-                
-                isClanAdded = data.is_setup;
-                setIsBotAdded(data.is_joined);
-                setShowPopup(false);
-            } catch(error: any) {
-                console.error(error);
-            }*/
 
             return;
         }
@@ -50,7 +34,6 @@ const Setup: Component<{ guild?: any, onFinish?: () => void }> = (props) => {
         if(isClanAdded && isBotAdded()) {
             const cache = GuildCache.getGuild(params.id)!;
             await cache.fetch(true);
-            //updateGuildData(params.id);
         }
     }
 

@@ -1,6 +1,6 @@
 import { useParams } from "@solidjs/router";
 import { Component, createSignal, For, Show } from "solid-js";
-import Dropdown from "../../components/Dropdown";
+import Dropdown, { DropdownItem } from "../../components/Dropdown";
 import SpinLoader from "../../components/SpinLoader";
 import { API } from "../../shared/api";
 import GuildCache from "../../shared/cache";
@@ -9,7 +9,7 @@ import styles from './Schedule.module.css';
 
 const Schedule: Component = () => {
     const [entries, setEntries] = createSignal<API.GuildScheduleEntry[]>([]);
-    const [members, setMembers] = createSignal<any[]>([]);
+    const [guildMembersList, setGuildMembersList] = createSignal<DropdownItem[]>([]);
 
     const params = useParams();
     const guild_id = params.id;
@@ -26,17 +26,17 @@ const Schedule: Component = () => {
 
         await guild.fetchMembers();
 
-        const items = guild.members.map(o => ({
+        const items: DropdownItem[] = guild.members.map(o => ({
             id: o.id,
             icon: o.avatar,
             content: o.username
         }));
 
-        setMembers(items);
+        setGuildMembersList(items);
     }).catch(error => console.error(error));
 
     return (
-        <Show when={entries().length > 0 && members().length > 0} fallback={<SpinLoader></SpinLoader>}>
+        <Show when={entries().length > 0 && guildMembersList().length > 0} fallback={<SpinLoader></SpinLoader>}>
             <div class={styles.top}>
                 <h1>Schedule</h1>
                 <button class={styles.save_btn} onClick={onSubmitButtonClicked}>
@@ -49,7 +49,7 @@ const Schedule: Component = () => {
                         <div id={entry.index.toString()} class={styles.item}>
                             <p class={styles.item_p}>{entry.index}</p>
                             <Dropdown 
-                                items={members()}
+                                items={guildMembersList()}
                                 selected={entry.uid}
                                 callback={(id: string) => {
                                     const current = entries();

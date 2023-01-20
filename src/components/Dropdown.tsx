@@ -1,17 +1,25 @@
 import { Component, createEffect, createSignal, For, onCleanup, onMount, Show } from "solid-js";
-
 import styles from './Dropdown.module.css';
 
-const Dropdown: Component<any> = (params) => {
-    const [dropped, setDropped] = createSignal(false);
-    const [selected, setSelected] = createSignal('');
-    const [option, setOption] = createSignal<any>(undefined);
+export interface DropdownItem {
+    id: string,
+    content: string,
+    icon?: string
+}
 
+interface DropdownProperties {
+    items: DropdownItem[],
+    up?: boolean,
+    callback?: (id: string) => void,
+    selected?: string
+}
+
+const Dropdown: Component<DropdownProperties> = (props) => {
     let container: HTMLDivElement | undefined;
 
-    createEffect(() => {
-        if(params.items) setOption(params.items.find((o: any) => o.id === selected()));
-    });
+    const [dropped, setDropped] = createSignal(false);
+    const [selected, setSelected] = createSignal('');
+    const [option, setOption] = createSignal<DropdownItem | null>(null);
 
     onMount(() => {
         document.addEventListener('click', onFocusLost);
@@ -19,6 +27,10 @@ const Dropdown: Component<any> = (params) => {
 
     onCleanup(() => {
         document.removeEventListener('click', onFocusLost);
+    });
+
+    createEffect(() => {
+        if(props.items) setOption(props.items.find((o) => o.id === selected()) || null);
     });
 
     const onFocusLost = (event: MouseEvent) => {
@@ -32,36 +44,36 @@ const Dropdown: Component<any> = (params) => {
         const element: HTMLElement = (event.target as HTMLElement).closest('div')!;
         setSelected(element.id);
 
-        if(params.callback) params.callback(element.id);
+        if(props.callback) props.callback(element.id);
     }
 
-    if(params.selected) setSelected(params.selected);
+    if(props.selected) setSelected(props.selected);
 
     return (
         <div 
             id="dropdown" 
             class={styles.dropdown}
-            classList={{ [styles.dropdown_dropped]: dropped(), [params.up ? styles.border_bottom : styles.border_top]: dropped() }}
+            classList={{ [styles.dropdown_dropped]: dropped(), [props.up ? styles.border_bottom : styles.border_top]: dropped() }}
             ref={container!} 
             onClick={() => setDropped(!dropped())}
         >
-            <div id={option() ? option().id : ""} class={styles.item_selected}>
+            <div id={option()?.id || ""} class={styles.item_selected}>
                 <Show when={option()} fallback={<div class={styles.img_temp}></div>}>
-                    <img class={styles.icon} src={option().icon}></img>
-                    <p class={styles.content}>{option().content}</p>
+                    <img class={styles.icon} src={option()!.icon || ""}></img>
+                    <p class={styles.content}>{option()!.content}</p>
                 </Show>
             </div>
-            <div class={styles.list} classList={{[styles.show]: dropped(), [styles.going_up]: params.up}}>
-                <For each={params.items}>
+            <div class={styles.list} classList={{[styles.show]: dropped(), [styles.going_up]: props.up}}>
+                <For each={props.items}>
                     {
-                        (item: any) => (
+                        (item) => (
                             <div 
                                 id={item.id} 
                                 class={styles.item} 
                                 classList={{[styles.selected]: selected() == item.id}} 
                                 onClick={onItemClicked}
                             >
-                                <img class={styles.icon} src={item.icon}></img>
+                                <img class={styles.icon} src={item.icon || ""}></img>
                                 <p class={styles.content}>{item.content}</p>
                             </div>
                         )
