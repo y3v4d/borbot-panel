@@ -82,6 +82,7 @@ const Dashboard: Component = () => {
                             <A 
                                 onClick={() => setShowSidebar(false)} 
                                 end={true} 
+                                inactiveClass={styles.navigation_link_inactive}
                                 activeClass={styles.navigation_link_active} 
                                 href={`/dashboard/${params.id}`}
                             >
@@ -91,6 +92,7 @@ const Dashboard: Component = () => {
                             <A 
                                 onClick={() => setShowSidebar(false)} 
                                 end={true} 
+                                inactiveClass={styles.navigation_link_inactive}
                                 activeClass={styles.navigation_link_active} 
                                 href={`/dashboard/${params.id}/members`}
                             >
@@ -100,6 +102,7 @@ const Dashboard: Component = () => {
                             <A 
                                 onClick={() => setShowSidebar(false)} 
                                 end={true} 
+                                inactiveClass={styles.navigation_link_inactive}
                                 activeClass={styles.navigation_link_active} 
                                 href={`/dashboard/${params.id}/schedule`}
                             >
@@ -109,6 +112,7 @@ const Dashboard: Component = () => {
                             <A 
                                 onClick={() => setShowSidebar(false)} 
                                 end={true} 
+                                inactiveClass={styles.navigation_link_inactive}
                                 activeClass={styles.navigation_link_active} 
                                 href={`/dashboard/${params.id}/settings`}
                             >

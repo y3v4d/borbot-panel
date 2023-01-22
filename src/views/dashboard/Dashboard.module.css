@@ -86,6 +86,10 @@
     border-radius: 6px;
 }
 
+.navigation_link_inactive:hover {
+    background-color: #3B4252;
+}
+
 .navigation_link_active {
     background-color: #5E81AC;
 }
