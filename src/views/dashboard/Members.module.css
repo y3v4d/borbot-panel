@@ -1,13 +1,11 @@
 .header {
     color: #D8DEE9;
-    margin: 8px 4px;
+    margin: 8px 0px 24px 4px;
 }
 
 .container {
     display: flex;
     flex-direction: column;
-
-    margin-top: 24px;
 }
 
 .save_btn {
@@ -20,12 +18,12 @@
 
 .item {
     background-color: #2E3440;
-    padding: 8px;
+    
+    padding: 4px;
     margin-bottom: 8px;
     border-radius: 8px;
     
     display: flex;
-
     align-items: center;
 }
 
@@ -33,6 +31,8 @@
     color: #D8DEE9;
     font-weight: bold;
     min-width: 200px;
+
+    padding-left: 8px;
 }
 
 .item_dropdown {

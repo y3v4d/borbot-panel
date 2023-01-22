@@ -26,19 +26,28 @@ const Schedule: Component = () => {
 
         await guild.fetchMembers();
 
-        const items: DropdownItem[] = guild.members.map(o => ({
-            id: o.id,
-            icon: o.avatar,
-            content: o.username
-        }));
+        const list: DropdownItem[] = [];
+        for(const member of guild.members) {
+            if(member.isBot) continue;
 
-        setGuildMembersList(items);
+            list.push({
+                id: member.id,
+                icon: member.avatar,
+                content: member.username
+            });
+        }
+
+        list.sort((self, other) => {
+            return self.content.toLowerCase().charCodeAt(0) - other.content.toLowerCase().charCodeAt(0);
+        });
+
+        setGuildMembersList(list);
     }).catch(error => console.error(error));
 
     return (
         <Show when={entries().length > 0 && guildMembersList().length > 0} fallback={<SpinLoader></SpinLoader>}>
             <div class={styles.top}>
-                <h1>Schedule</h1>
+                <h1 class={styles.header}>Schedule</h1>
                 <button class={styles.save_btn} onClick={onSubmitButtonClicked}>
                     <span class='material-icons'>done</span>
                 </button>

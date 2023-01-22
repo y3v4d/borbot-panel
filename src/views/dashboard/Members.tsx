@@ -36,8 +36,16 @@ const Members: Component = () => {
                 id: member.id,
                 icon: member.avatar,
                 content: member.username
-            })
+            });
         }
+
+        list.sort((self, other) => {
+            return self.content.toLowerCase().charCodeAt(0) - other.content.toLowerCase().charCodeAt(0);
+        });
+
+        guild.clanMembers.sort((self, other) => {
+            return self.nickname.toLowerCase().charCodeAt(0) - other.nickname.toLowerCase().charCodeAt(0);
+        });
 
         setClanMembers(guild.clanMembers);
         setGuildMembersList(list);
@@ -49,7 +57,7 @@ const Members: Component = () => {
             <div class={styles.container}>
                 <For each={clanMembers()}>
                     {
-                        (member: any) => (
+                        (member) => (
                             <div id={member.uid} class={styles.item}>
                                 <p>{member.nickname}</p>
                                 <Dropdown 

@@ -22,6 +22,15 @@ export class ClanMember {
         this.lastRewardTimestamp = data.lastRewardTimestamp;
         this.lastBonusRewardTimestamp = data.lastBonusRewardTimestamp;
     }
+
+    getClassName() {
+        switch(this.class) {
+            case 1: return "Rogue";
+            case 2: return "Mage";
+            case 3: return "Priest";
+            default: return "Unknown";
+        }
+    }
 }
 
 export class GuildMember {

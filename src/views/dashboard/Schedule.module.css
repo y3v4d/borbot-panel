@@ -1,3 +1,9 @@
+.header {
+    color: #D8DEE9;
+
+    margin: 8px 0px 0px 4px;
+}
+
 .top {
     display: flex;
     flex-direction: row;
@@ -5,7 +11,7 @@
     align-items: center;
     justify-content: space-between;
 
-    padding: 0px 8px;
+    margin-bottom: 24px;
 }
 
 .save_btn {
@@ -18,11 +24,19 @@
 
 .item {
     display: flex;
-
     align-items: center;
+
+    background-color: #2E3440;
+    
+    padding: 4px;
+    margin-bottom: 8px;
+    border-radius: 8px;
 }
 
 .item_p {
-    width: 80px;
+    color: #D8DEE9;
+    font-weight: bold;
+    min-width: 80px;
+
     text-align: center;
 }
