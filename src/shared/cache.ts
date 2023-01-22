@@ -30,6 +30,7 @@ export class GuildMember {
     public username: string;
     public avatar: string;
     public nickname: string;
+    public isBot: boolean;
 
     constructor(data: API.GuildMember) {
         this.id = data.id;
@@ -37,6 +38,7 @@ export class GuildMember {
         this.username = data.username;
         this.avatar = data.avatar;
         this.nickname = data.nickname;
+        this.isBot = data.isBot;
     }
 }
 

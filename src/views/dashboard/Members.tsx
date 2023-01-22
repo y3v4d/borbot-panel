@@ -28,14 +28,19 @@ const Members: Component = () => {
 
         await guild.fetchMembers();
 
-        const membersList: DropdownItem[] = guild.members.map(o => ({
-            id: o.id,
-            icon: o.avatar,
-            content: o.username
-        }));
+        const list: DropdownItem[] = [];
+        for(const member of guild.members) {
+            if(member.isBot) continue;
+
+            list.push({
+                id: member.id,
+                icon: member.avatar,
+                content: member.username
+            })
+        }
 
         setClanMembers(guild.clanMembers);
-        setGuildMembersList(membersList);
+        setGuildMembersList(list);
     }).catch(error => console.error(error))
 
     return (

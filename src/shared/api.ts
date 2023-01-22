@@ -56,7 +56,8 @@ export namespace API {
         disc: string,
         username: string,
         avatar: string,
-        nickname: string
+        nickname: string,
+        isBot: boolean
     }
 
     export type ClanMember = {
