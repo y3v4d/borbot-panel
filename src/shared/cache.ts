@@ -114,6 +114,8 @@ export class Guild {
             return;
         }
 
+        const timer = Date.now();
+
         try {
             const data = await API.getGuildMembers(this.id);
 
@@ -132,6 +134,8 @@ export class Guild {
         } catch(error) {
             throw error;
         }
+
+        console.log(`Fetch members completed in ${Date.now() - timer}ms`);
     }
 }
 

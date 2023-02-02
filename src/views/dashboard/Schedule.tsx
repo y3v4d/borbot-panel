@@ -10,15 +10,33 @@ import styles from './Schedule.module.css';
 const Schedule: Component = () => {
     const [entries, setEntries] = createSignal<API.GuildScheduleEntry[]>([]);
     const [guildMembersList, setGuildMembersList] = createSignal<DropdownItem[]>([]);
+    const [guildChannelsList, setGuildChannelsList] = createSignal<DropdownItem[]>([]);
 
     const params = useParams();
     const guild_id = params.id;
     const guild = GuildCache.getGuild(guild_id)!;
+    let schedule_channel = "";
 
     const onSubmitButtonClicked = async () => {
-        const result = await API.postGuildSchedule(guild_id, entries());
+        const result = await API.postGuildSchedule(guild_id, entries(), schedule_channel);
         console.log(result);
     };
+
+    API.getGuildChannels(guild_id).then(data => {
+        const list: DropdownItem[] = [ { id: "", content: "None" }];
+        for(const channel of data) {
+            list.push({
+                id: channel.id,
+                content: "#" + channel.name
+            });
+        }
+
+        console.log(list);
+
+        setGuildChannelsList(list);
+    }).catch(error => {
+        console.error(error);
+    });
 
     API.getGuildSchedule(guild_id).then(async data => {
         setEntries(data.entries);
@@ -41,16 +59,33 @@ const Schedule: Component = () => {
             return self.content.toLowerCase().charCodeAt(0) - other.content.toLowerCase().charCodeAt(0);
         });
 
+        schedule_channel = data.schedule_channel;
+
         setGuildMembersList(list);
     }).catch(error => console.error(error));
 
     return (
-        <Show when={entries().length > 0 && guildMembersList().length > 0} fallback={<SpinLoader></SpinLoader>}>
+        <Show 
+            when={entries().length > 0 && guildMembersList().length > 0 && guildChannelsList().length > 0} 
+            fallback={<SpinLoader></SpinLoader>}
+        >
+
             <div class={styles.top}>
                 <h1 class={styles.header}>Schedule</h1>
                 <button class={styles.save_btn} onClick={onSubmitButtonClicked}>
                     <span class='material-icons'>done</span>
                 </button>
+            </div>
+            <div class={styles.channel_selector}>
+                <p class={styles.channel_title}>Channel: </p>
+                <Dropdown
+                    items={guildChannelsList()}
+                    selected={schedule_channel}
+                    no_icon={true}
+                    callback={(id: string) => {
+                        schedule_channel = id;
+                    }}
+                />
             </div>
             <For each={entries()}>
                 {

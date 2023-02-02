@@ -11,7 +11,8 @@ interface DropdownProperties {
     items: DropdownItem[],
     up?: boolean,
     callback?: (id: string) => void,
-    selected?: string
+    selected?: string,
+    no_icon?: boolean
 }
 
 const Dropdown: Component<DropdownProperties> = (props) => {
@@ -58,10 +59,12 @@ const Dropdown: Component<DropdownProperties> = (props) => {
             onClick={() => setDropped(!dropped())}
         >
             <div id={option()?.id || ""} class={styles.item_selected}>
-                <Show when={option()} fallback={<div class={styles.img_temp}></div>}>
-                    <img class={styles.icon} src={option()!.icon || ""}></img>
-                    <p class={styles.content}>{option()!.content}</p>
+                <Show when={!props.no_icon}>
+                    <Show when={option()} fallback={<div class={styles.img_temp}></div>}>
+                        <img class={styles.icon} src={option()?.icon || ""}></img>
+                    </Show>
                 </Show>
+                <p class={styles.content} classList={{[styles.content_low]: props.no_icon}}>{option()?.content || "None"}</p>
             </div>
             <div class={styles.list} classList={{[styles.show]: dropped(), [styles.going_up]: props.up}}>
                 <For each={props.items}>
@@ -73,8 +76,10 @@ const Dropdown: Component<DropdownProperties> = (props) => {
                                 classList={{[styles.selected]: selected() == item.id}} 
                                 onClick={onItemClicked}
                             >
-                                <img class={styles.icon} src={item.icon || ""}></img>
-                                <p class={styles.content}>{item.content}</p>
+                                <Show when={!props.no_icon}>
+                                    <img class={styles.icon} src={item.icon || ""}></img>
+                                </Show>
+                                <p class={styles.content} classList={{[styles.content_low]: props.no_icon}}>{item.content}</p>
                             </div>
                         )
                     }

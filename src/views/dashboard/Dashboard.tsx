@@ -57,6 +57,7 @@ const Dashboard: Component = () => {
         }
 
         await guild.fetch();
+        console.log(guild);
         setCurrentGuild(guild);
         
         guild.watch(g => {
@@ -77,7 +78,7 @@ const Dashboard: Component = () => {
             </header>
             <div class={styles.container}>
                 <section ref={sidebar!} class={styles.sidebar} classList={{ [styles.show]: showSidebar() }}>
-                    <Show when={currentGuild()?.is_setup} fallback={<div class={styles.fill}></div>}>
+                    <Show when={currentGuild()?.is_setup && currentGuild()?.is_joined} fallback={<div class={styles.fill}></div>}>
                         <nav class={styles.navigation}>
                             <A 
                                 onClick={() => setShowSidebar(false)} 

@@ -87,6 +87,11 @@
     margin-left: 8px;
 }
 
+.content_low {
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
 .selected {
     display: none;
 }

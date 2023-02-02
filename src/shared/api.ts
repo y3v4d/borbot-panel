@@ -76,6 +76,11 @@ export namespace API {
         guild: GuildMember[]
     }
 
+    export type GuildChannel = {
+        id: string,
+        name: string
+    }
+
     export type GuildConnected = {
         guild_uid: string,
         clan_uid: string
@@ -90,7 +95,8 @@ export namespace API {
         id: string,
         start: string,
         next_cycle: string,
-        entries: GuildScheduleEntry[]
+        entries: GuildScheduleEntry[],
+        schedule_channel: string
     }
 
     export async function getUserInfo() {
@@ -109,6 +115,10 @@ export namespace API {
         return await request<GuildMembers>('get', `guilds/${id}/members`);
     }
 
+    export async function getGuildChannels(id: string) {
+        return await request<GuildChannel[]>('get', `guilds/${id}/channels`);
+    }
+
     export async function getGuildConnected(id: string) {
         return await request<GuildConnected[]>('get', `guilds/${id}/connected`);
     }
@@ -121,7 +131,12 @@ export namespace API {
         return await request<GuildSchedule>('get', `guilds/${id}/schedule`);
     }
 
-    export async function postGuildSchedule(id: string, entries: GuildScheduleEntry[]) {
-        return await request<any>('post', `guilds/${id}/schedule`, { data: entries });
+    export async function postGuildSchedule(id: string, entries: GuildScheduleEntry[], schedule_channel?: string) {
+        const params = {
+            list: entries,
+            schedule_channel: schedule_channel || ""
+        };
+
+        return await request<any>('post', `guilds/${id}/schedule`, params);
     }
 }
