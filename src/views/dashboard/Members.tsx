@@ -57,7 +57,7 @@ const Members: Component = () => {
             <div class={styles.container}>
                 <For each={clanMembers()}>
                     {
-                        (member) => (
+                        (member, index) => (
                             <div id={member.uid} class={styles.item}>
                                 <p>{member.nickname}</p>
                                 <Dropdown 
@@ -72,6 +72,7 @@ const Members: Component = () => {
 
                                         setConnected(current);
                                     }}
+                                    up={index() >= clanMembers().length - 2}
                                 />
                             </div>
                         )

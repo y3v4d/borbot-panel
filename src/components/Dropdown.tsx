@@ -18,6 +18,7 @@ interface DropdownProperties {
 
 const Dropdown: Component<DropdownProperties> = (props) => {
     let container: HTMLDivElement | undefined;
+    let list: HTMLDivElement | undefined;
 
     const [dropped, setDropped] = createSignal(false);
     const [selected, setSelected] = createSignal('');
@@ -47,10 +48,11 @@ const Dropdown: Component<DropdownProperties> = (props) => {
     const onDropdownClicked = () => {
         if(option() && !dropped() && props.items.length == 1) return;
 
+
         setDropped(!dropped())
     }
 
-    const onCloseClicked = (event: Event) => {
+    const onRemoveClicked = (event: Event) => {
         setSelected("");
 
         if(props.callback) props.callback("");
@@ -67,10 +69,10 @@ const Dropdown: Component<DropdownProperties> = (props) => {
 
     return (
         <div 
-            id="dropdown" 
+            id="dropdown"
             class={styles.dropdown}
             classList={{ [styles.dropdown_dropped]: dropped(), [props.up ? styles.border_bottom : styles.border_top]: dropped() }}
-            ref={container!} 
+            ref={container} 
             onClick={onDropdownClicked}
         >
             <div id={option()?.id || ""} class={styles.item_selected}>
@@ -83,7 +85,11 @@ const Dropdown: Component<DropdownProperties> = (props) => {
                     <p class={styles.content}>{option()?.content}</p>
                 </Show>
             </div>
-            <div class={styles.list} classList={{[styles.show]: dropped(), [styles.going_up]: props.up}}>
+            <div 
+                class={styles.list} 
+                classList={{[styles.show]: dropped(), [styles.going_up]: props.up}}
+                ref={list}
+            >
                 <For each={props.items}>
                     {
                         (item) => (
@@ -102,10 +108,10 @@ const Dropdown: Component<DropdownProperties> = (props) => {
                     }
                 </For>
             </div>
-            <Show when={option() && props.nullable}>
+            <Show when={option() && props.nullable && (dropped() || props.items.length == 1)}>
                 <span 
-                    class={`material-icons md-bold ${styles.close}`}
-                    onClick={onCloseClicked}
+                    class={`material-icons md-bold ${styles.remove}`}
+                    onClick={onRemoveClicked}
                 >
                     close
                 </span>
