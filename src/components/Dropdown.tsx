@@ -12,7 +12,8 @@ interface DropdownProperties {
     up?: boolean,
     callback?: (id: string) => void,
     selected?: string,
-    no_icon?: boolean
+    no_icon?: boolean,
+    nullable?: boolean
 }
 
 const Dropdown: Component<DropdownProperties> = (props) => {
@@ -21,6 +22,8 @@ const Dropdown: Component<DropdownProperties> = (props) => {
     const [dropped, setDropped] = createSignal(false);
     const [selected, setSelected] = createSignal('');
     const [option, setOption] = createSignal<DropdownItem | null>(null);
+
+    props.nullable = props.nullable === undefined ? true : props.nullable;
 
     onMount(() => {
         document.addEventListener('click', onFocusLost);
@@ -41,6 +44,18 @@ const Dropdown: Component<DropdownProperties> = (props) => {
         }
     }
 
+    const onDropdownClicked = () => {
+        if(option() && !dropped() && props.items.length == 1) return;
+
+        setDropped(!dropped())
+    }
+
+    const onCloseClicked = (event: Event) => {
+        setSelected("");
+
+        if(props.callback) props.callback("");
+    }
+
     const onItemClicked = (event: Event) => {
         const element: HTMLElement = (event.target as HTMLElement).closest('div')!;
         setSelected(element.id);
@@ -56,15 +71,17 @@ const Dropdown: Component<DropdownProperties> = (props) => {
             class={styles.dropdown}
             classList={{ [styles.dropdown_dropped]: dropped(), [props.up ? styles.border_bottom : styles.border_top]: dropped() }}
             ref={container!} 
-            onClick={() => setDropped(!dropped())}
+            onClick={onDropdownClicked}
         >
             <div id={option()?.id || ""} class={styles.item_selected}>
                 <Show when={!props.no_icon}>
-                    <Show when={option()} fallback={<div class={styles.img_temp}></div>}>
-                        <img class={styles.icon} src={option()?.icon || ""}></img>
+                    <Show when={option()?.icon} fallback={<div class={styles.icon}></div>}>
+                        <img class={styles.icon} src={option()?.icon}></img>
                     </Show>
                 </Show>
-                <p class={styles.content} classList={{[styles.content_low]: props.no_icon}}>{option()?.content || "None"}</p>
+                <Show when={option()} fallback={<div class={styles.filler}></div>}>
+                    <p class={styles.content}>{option()?.content}</p>
+                </Show>
             </div>
             <div class={styles.list} classList={{[styles.show]: dropped(), [styles.going_up]: props.up}}>
                 <For each={props.items}>
@@ -77,14 +94,22 @@ const Dropdown: Component<DropdownProperties> = (props) => {
                                 onClick={onItemClicked}
                             >
                                 <Show when={!props.no_icon}>
-                                    <img class={styles.icon} src={item.icon || ""}></img>
+                                    <img class={styles.icon} src={item.icon}></img>
                                 </Show>
-                                <p class={styles.content} classList={{[styles.content_low]: props.no_icon}}>{item.content}</p>
+                                <p class={styles.content}>{item.content}</p>
                             </div>
                         )
                     }
                 </For>
             </div>
+            <Show when={option() && props.nullable}>
+                <span 
+                    class={`material-icons md-bold ${styles.close}`}
+                    onClick={onCloseClicked}
+                >
+                    close
+                </span>
+            </Show>
         </div>
     )
 }

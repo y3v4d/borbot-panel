@@ -128,6 +128,7 @@ const Dashboard: Component = () => {
                             up={true} 
                             selected={params.id}
                             callback={(id: string) => navigate(`/dashboard/${id}`)}
+                            nullable={false}
                         />
                         <span class={`material-icons ${styles.logout}`} onClick={onLogoutClicked}>logout</span>
                     </div>

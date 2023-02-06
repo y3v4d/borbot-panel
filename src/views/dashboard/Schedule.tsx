@@ -23,7 +23,7 @@ const Schedule: Component = () => {
     };
 
     API.getGuildChannels(guild_id).then(data => {
-        const list: DropdownItem[] = [ { id: "", content: "None" }];
+        const list: DropdownItem[] = [];
         for(const channel of data) {
             list.push({
                 id: channel.id,
