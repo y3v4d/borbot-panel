@@ -7,6 +7,8 @@ import GuildCache from "../../shared/cache";
 
 import styles from './Schedule.module.css';
 
+const ROMAN = [ 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X' ];
+
 const Schedule: Component = () => {
     const [entries, setEntries] = createSignal<API.GuildScheduleEntry[]>([]);
     const [guildMembersList, setGuildMembersList] = createSignal<DropdownItem[]>([]);
@@ -71,42 +73,51 @@ const Schedule: Component = () => {
         >
 
             <div class={styles.top}>
-                <h1 class={styles.header}>Schedule</h1>
+                <h1 class={styles.header}>Raid</h1>
                 <button class={styles.save_btn} onClick={onSubmitButtonClicked}>
                     <span class='material-icons'>done</span>
                 </button>
             </div>
-            <div class={styles.channel_selector}>
-                <p class={styles.channel_title}>Channel: </p>
-                <Dropdown
-                    items={guildChannelsList()}
-                    selected={schedule_channel}
-                    no_icon={true}
-                    callback={(id: string) => {
-                        schedule_channel = id;
-                    }}
-                />
-            </div>
-            <For each={entries()}>
-                {
-                    entry => (
-                        <div id={entry.index.toString()} class={styles.item}>
-                            <p class={styles.item_p}>{entry.index}</p>
-                            <Dropdown 
-                                items={guildMembersList()}
-                                selected={entry.uid}
-                                callback={(id: string) => {
-                                    const current = entries();
-                                    const found = current.find(o => o.index == entry.index)!;
-                                    found.uid = id;
+            <div class={styles.main}>
+                <div class={styles.options}>
+                    <div class={styles.channel_selector}>
+                        <p class={styles.channel_title}>Schedule channel: </p>
+                        <Dropdown
+                            items={guildChannelsList()}
+                            selected={schedule_channel}
+                            no_icon={true}
+                            callback={(id: string) => {
+                                schedule_channel = id;
+                            }}
+                        />
+                    </div>
+                </div>
+                <div class={styles.container}>
+                    <h2 class={styles.schedule_title}>Schedule</h2>
+                    <div class={styles.schedule_list}>
+                        <For each={entries()}>
+                            {
+                                entry => (
+                                    <div id={entry.index.toString()} class={styles.item}>
+                                        <p class={styles.item_p}>{ROMAN[entry.index - 1]}</p>
+                                        <Dropdown 
+                                            items={guildMembersList()}
+                                            selected={entry.uid}
+                                            callback={(id: string) => {
+                                                const current = entries();
+                                                const found = current.find(o => o.index == entry.index)!;
+                                                found.uid = id;
 
-                                    setEntries(current);
-                                }}
-                            />
-                        </div>
-                    )
-                }
-            </For>
+                                                setEntries(current);
+                                            }}
+                                        />
+                                    </div>
+                                )
+                            }
+                        </For>
+                    </div>
+                </div>
+            </div>
         </Show>
     )
 }
