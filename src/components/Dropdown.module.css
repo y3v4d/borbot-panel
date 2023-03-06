@@ -72,6 +72,8 @@
 
     padding: 8px;
     min-height: 26px;
+
+    column-gap: 4px;
 }
 
 .item:hover {

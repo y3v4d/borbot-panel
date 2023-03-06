@@ -57,7 +57,6 @@ const Dashboard: Component = () => {
         }
 
         await guild.fetch();
-        console.log(guild);
         setCurrentGuild(guild);
         
         guild.watch(g => {
@@ -107,8 +106,8 @@ const Dashboard: Component = () => {
                                 activeClass={styles.navigation_link_active} 
                                 href={`/dashboard/${params.id}/schedule`}
                             >
-                                <span class='material-icons'>calendar_month</span>
-                                <p>Schedule</p>
+                                <span class='material-icons'>shield</span>
+                                <p>Raid</p>
                             </A>
                             <A 
                                 onClick={() => setShowSidebar(false)} 

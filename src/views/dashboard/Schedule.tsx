@@ -13,16 +13,34 @@ const Schedule: Component = () => {
     const [entries, setEntries] = createSignal<API.GuildScheduleEntry[]>([]);
     const [guildMembersList, setGuildMembersList] = createSignal<DropdownItem[]>([]);
     const [guildChannelsList, setGuildChannelsList] = createSignal<DropdownItem[]>([]);
+    const [guildRolesList, setGuildRolesList] = createSignal<DropdownItem[]>([]);
+
+    const [raidAnnouncementChannel, setRaidAnnouncementChannel] = createSignal("");
+    const [raidFightRole, setRaidFightRole] = createSignal("");
+    const [raidClaimRole, setRaidClaimRole] = createSignal("");
 
     const params = useParams();
     const guild_id = params.id;
     const guild = GuildCache.getGuild(guild_id)!;
+
     let schedule_channel = "";
+    let schedule_start: Date | null = new Date('2022-04-02');
+
+    let scheduleStartInput: HTMLInputElement | undefined;
 
     const onSubmitButtonClicked = async () => {
-        const result = await API.postGuildSchedule(guild_id, entries(), schedule_channel);
-        console.log(result);
+        const raidResult = await API.postGuildRaid(guild_id, raidAnnouncementChannel(), raidFightRole(), raidClaimRole());
+        const result = await API.postGuildSchedule(guild_id, entries(), schedule_channel, scheduleStartInput?.valueAsDate || undefined);
+
+        console.log(`raid: `, raidResult);
+        console.log(`schedule: `, result);
     };
+
+    API.getGuildRaid(guild_id).then(data => {
+        setRaidAnnouncementChannel(data.announcement_channel);
+        setRaidFightRole(data.fight_role);
+        setRaidClaimRole(data.claim_role);
+    }).catch(error => console.error(error));
 
     API.getGuildChannels(guild_id).then(data => {
         const list: DropdownItem[] = [];
@@ -40,9 +58,29 @@ const Schedule: Component = () => {
         console.error(error);
     });
 
+    API.getGuildRoles(guild_id).then(data => {
+        const list: DropdownItem[] = [];
+        for(const role of data) {
+            if(role.name === '@everyone') continue;
+
+            list.push({
+                id: role.id,
+                content: role.name
+            });
+        }
+
+        list.sort((self, other) => {
+            return self.content.charCodeAt(0) - other.content.charCodeAt(0);
+        });
+
+        console.log(list);
+
+        setGuildRolesList(list);
+    });
+
     API.getGuildSchedule(guild_id).then(async data => {
         setEntries(data.entries);
-        console.log(data);
+        console.log(`[SCHEDULE DATA]`, data);
 
         await guild.fetchMembers();
 
@@ -62,6 +100,7 @@ const Schedule: Component = () => {
         });
 
         schedule_channel = data.schedule_channel;
+        schedule_start = new Date(data.start);
 
         setGuildMembersList(list);
     }).catch(error => console.error(error));
@@ -75,21 +114,65 @@ const Schedule: Component = () => {
             <div class={styles.top}>
                 <h1 class={styles.header}>Raid</h1>
                 <button class={styles.save_btn} onClick={onSubmitButtonClicked}>
-                    <span class='material-icons'>done</span>
+                    Save
+                    <span class='material-icons'>save</span>
                 </button>
             </div>
             <div class={styles.main}>
                 <div class={styles.options}>
-                    <div class={styles.channel_selector}>
-                        <p class={styles.channel_title}>Schedule channel: </p>
-                        <Dropdown
-                            items={guildChannelsList()}
-                            selected={schedule_channel}
-                            no_icon={true}
-                            callback={(id: string) => {
-                                schedule_channel = id;
-                            }}
-                        />
+                    <div class={styles.subcategory}>
+                        <h2 class={styles.schedule_title}>Announcements</h2>
+
+                        <div class={styles.properties}>
+                            <div class={styles.property}>
+                                <p class={styles.property_title}>Announcement channel </p>
+                                <Dropdown
+                                    items={guildChannelsList()}
+                                    selected={raidAnnouncementChannel()}
+                                    no_icon={true}
+                                    callback={id => setRaidAnnouncementChannel(id)}
+                                />
+                            </div>
+                            <div class={styles.property}>
+                                <p class={styles.property_title}>Fighter role </p>
+                                <Dropdown
+                                    items={guildRolesList()}
+                                    selected={raidFightRole()}
+                                    no_icon={true}
+                                    callback={id => setRaidFightRole(id)}
+                                />
+                            </div>
+                            <div class={styles.property}>
+                                <p class={styles.property_title}>Claimer role </p>
+                                <Dropdown
+                                    items={guildRolesList()}
+                                    selected={raidClaimRole()}
+                                    no_icon={true}
+                                    callback={id => setRaidClaimRole(id)}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div class={styles.subcategory}>
+                        <h2 class={styles.schedule_title}>Options</h2> 
+
+                        <div class={styles.properties}>
+                            <div class={styles.property}>
+                                <p class={styles.property_title}>Cycle start:</p>
+                                <input type="date" ref={scheduleStartInput} value={schedule_start.toLocaleDateString('en-CA')}></input>
+                            </div>
+                            <div class={styles.property}>
+                                <p class={styles.property_title}>Schedule channel: </p>
+                                <Dropdown
+                                    items={guildChannelsList()}
+                                    selected={schedule_channel}
+                                    no_icon={true}
+                                    callback={(id: string) => {
+                                        schedule_channel = id;
+                                    }}
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class={styles.container}>

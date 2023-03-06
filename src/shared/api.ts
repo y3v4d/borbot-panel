@@ -81,6 +81,11 @@ export namespace API {
         name: string
     }
 
+    export type GuildRole = {
+        id: string,
+        name: string
+    }
+
     export type GuildConnected = {
         guild_uid: string,
         clan_uid: string
@@ -97,6 +102,13 @@ export namespace API {
         next_cycle: string,
         entries: GuildScheduleEntry[],
         schedule_channel: string
+    }
+
+    export type GuildRaid = {
+        id: string,
+        announcement_channel: string,
+        fight_role: string,
+        claim_role: string
     }
 
     export async function getUserInfo() {
@@ -119,6 +131,10 @@ export namespace API {
         return await request<GuildChannel[]>('get', `guilds/${id}/channels`);
     }
 
+    export async function getGuildRoles(id: string) {
+        return await request<GuildRole[]>('get', `guilds/${id}/roles`);
+    }
+
     export async function getGuildConnected(id: string) {
         return await request<GuildConnected[]>('get', `guilds/${id}/connected`);
     }
@@ -131,12 +147,27 @@ export namespace API {
         return await request<GuildSchedule>('get', `guilds/${id}/schedule`);
     }
 
-    export async function postGuildSchedule(id: string, entries: GuildScheduleEntry[], schedule_channel?: string) {
+    export async function postGuildSchedule(id: string, entries: GuildScheduleEntry[], schedule_channel?: string, cycle_start?: Date) {
         const params = {
             list: entries,
-            schedule_channel: schedule_channel || ""
+            schedule_channel: schedule_channel || "",
+            cycle_start: cycle_start
         };
 
         return await request<any>('post', `guilds/${id}/schedule`, params);
+    }
+
+    export async function getGuildRaid(id: string) {
+        return await request<GuildRaid>('get', `guilds/${id}/raid`);
+    }
+
+    export async function postGuildRaid(id: string, announcementChannel?: string, fightRole?: string, claimRole?: string) {
+        const params = {
+            announcement_channel: announcementChannel || "",
+            fight_role: fightRole || "",
+            claim_role: claimRole || ""
+        };
+
+        return await request<any>('post', `guilds/${id}/raid`, params);
     }
 }

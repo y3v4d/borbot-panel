@@ -104,8 +104,6 @@ export class Guild {
 
         if(this.watchCallback) {
             this.watchCallback(this);
-        } else {
-            console.log(`No callback assigned for ${this.id}`);
         }
     }
 
