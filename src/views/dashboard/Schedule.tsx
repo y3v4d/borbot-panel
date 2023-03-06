@@ -16,6 +16,7 @@ const Schedule: Component = () => {
     const [guildRolesList, setGuildRolesList] = createSignal<DropdownItem[]>([]);
 
     const [raidAnnouncementChannel, setRaidAnnouncementChannel] = createSignal("");
+    const [raidRemindChannel, setRaidRemindChannel] = createSignal("");
     const [raidFightRole, setRaidFightRole] = createSignal("");
     const [raidClaimRole, setRaidClaimRole] = createSignal("");
 
@@ -29,7 +30,7 @@ const Schedule: Component = () => {
     let scheduleStartInput: HTMLInputElement | undefined;
 
     const onSubmitButtonClicked = async () => {
-        const raidResult = await API.postGuildRaid(guild_id, raidAnnouncementChannel(), raidFightRole(), raidClaimRole());
+        const raidResult = await API.postGuildRaid(guild_id, raidAnnouncementChannel(), raidFightRole(), raidClaimRole(), raidRemindChannel());
         const result = await API.postGuildSchedule(guild_id, entries(), schedule_channel, scheduleStartInput?.valueAsDate || undefined);
 
         console.log(`raid: `, raidResult);
@@ -38,6 +39,7 @@ const Schedule: Component = () => {
 
     API.getGuildRaid(guild_id).then(data => {
         setRaidAnnouncementChannel(data.announcement_channel);
+        setRaidRemindChannel(data.remind_channel);
         setRaidFightRole(data.fight_role);
         setRaidClaimRole(data.claim_role);
     }).catch(error => console.error(error));
@@ -152,17 +154,31 @@ const Schedule: Component = () => {
                                 />
                             </div>
                         </div>
+
+                        <h2 class={styles.schedule_title}>Reminds</h2>
+
+                        <div class={styles.properties}>
+                            <div class={styles.property}>
+                                <p class={styles.property_title}>Remind channel</p>
+                                <Dropdown
+                                    items={guildChannelsList()}
+                                    selected={raidRemindChannel()}
+                                    no_icon={true}
+                                    callback={id => setRaidRemindChannel(id)}
+                                />
+                            </div>
+                        </div>
                     </div>
                     <div class={styles.subcategory}>
                         <h2 class={styles.schedule_title}>Options</h2> 
 
                         <div class={styles.properties}>
                             <div class={styles.property}>
-                                <p class={styles.property_title}>Cycle start:</p>
+                                <p class={styles.property_title}>Cycle start</p>
                                 <input type="date" ref={scheduleStartInput} value={schedule_start.toLocaleDateString('en-CA')}></input>
                             </div>
                             <div class={styles.property}>
-                                <p class={styles.property_title}>Schedule channel: </p>
+                                <p class={styles.property_title}>Schedule channel</p>
                                 <Dropdown
                                     items={guildChannelsList()}
                                     selected={schedule_channel}

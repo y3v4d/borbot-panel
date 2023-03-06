@@ -108,7 +108,8 @@ export namespace API {
         id: string,
         announcement_channel: string,
         fight_role: string,
-        claim_role: string
+        claim_role: string,
+        remind_channel: string
     }
 
     export async function getUserInfo() {
@@ -161,11 +162,12 @@ export namespace API {
         return await request<GuildRaid>('get', `guilds/${id}/raid`);
     }
 
-    export async function postGuildRaid(id: string, announcementChannel?: string, fightRole?: string, claimRole?: string) {
+    export async function postGuildRaid(id: string, announcementChannel?: string, fightRole?: string, claimRole?: string, remindChannel?: string) {
         const params = {
             announcement_channel: announcementChannel || "",
             fight_role: fightRole || "",
-            claim_role: claimRole || ""
+            claim_role: claimRole || "",
+            remind_channel: remindChannel || ""
         };
 
         return await request<any>('post', `guilds/${id}/raid`, params);
