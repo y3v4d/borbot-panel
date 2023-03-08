@@ -2,6 +2,7 @@ import { useParams } from "@solidjs/router";
 import { Component, createResource, For, Show } from "solid-js";
 import Dropdown, { DropdownItem } from "../../components/Dropdown";
 import SpinLoader from "../../components/SpinLoader";
+import Toggle from "../../components/Toggle";
 import { API } from "../../shared/api";
 import GuildCache from "../../shared/cache";
 import styles from './Raid.module.css';
@@ -53,7 +54,10 @@ const Raid: Component = () => {
             <div class={styles.main}>
                 <div class={styles.flex_row}>
                     <div class={styles.category}>
-                        <h2 class={styles.category_header}>Announcements</h2>
+                        <div class={styles.category_top}>
+                            <h2 class={styles.category_header}>Announcements</h2>
+                            <Toggle></Toggle>
+                        </div>
 
                         <div class={styles.properties}>
                             <div class={styles.property}>
@@ -87,7 +91,10 @@ const Raid: Component = () => {
                     </div>
 
                     <div class={styles.category}>
-                        <h2 class={styles.category_header}>Claim Reminder</h2>
+                        <div class={styles.category_top}>
+                            <h2>Claim Reminder</h2>
+                            <Toggle></Toggle>
+                        </div>
 
                         <div class={styles.properties}>
                             <div class={styles.property}>
@@ -104,7 +111,9 @@ const Raid: Component = () => {
                 </div>
 
                 <div class={styles.category}>
-                    <h2 class={styles.category_header}>Schedule</h2>
+                    <div class={styles.category_top}>
+                        <h2>Schedule</h2>
+                    </div>
 
                     <div class={styles.category_schedule_container}>
                         <div class={styles.properties}>

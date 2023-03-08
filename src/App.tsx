@@ -8,6 +8,7 @@ import Members from './views/dashboard/Members';
 import Setup from './views/dashboard/Setup';
 import Settings from './views/dashboard/Settings';
 import Raid from './views/dashboard/Raid';
+import Toggle from './components/Toggle';
 
 const App: Component = () => {
     return (

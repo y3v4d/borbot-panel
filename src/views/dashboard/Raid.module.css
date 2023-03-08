@@ -59,7 +59,14 @@
     row-gap: 16px;
 }
 
-.category_header {
+.category_top {
+    display: flex;
+    flex-direction: row;
+
+    justify-content: space-between;
+}
+
+.category_top > h2 {
     color: #E5E9F0;
 
     margin: 0px;

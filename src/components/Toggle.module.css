@@ -1,0 +1,53 @@
+.main {
+    display: inline-block;
+    position: relative;
+    
+    width: 50px;
+    height: 28px;
+}
+
+.main > input {
+    width: 0;
+    height: 0;
+    opacity: 0;
+}
+
+.toggle {
+    position: absolute;
+    cursor: pointer;
+
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+    background-color: #3B4252;
+    border-radius: 34px;
+
+    transition: .4s;
+}
+
+.toggle:before {
+    background-color: #D8DEE9;
+
+    position: absolute;
+    content: "";
+
+    width: 20px;
+    height: 20px;
+
+    left: 4px;
+    bottom: 4px;
+
+    border-radius: 50%;
+
+    transition: .4s;
+}
+
+input:checked + .toggle:before {
+    transform: translateX(22px);
+}
+
+input:checked + .toggle {
+    background-color: #8FBCBB;
+}
