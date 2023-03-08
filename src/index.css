@@ -9,6 +9,8 @@ html, body {
 
     display: flex;
     flex-direction: column;
+
+    font-family: 'Inter', sans-serif;
 }
 
 .material-icons.md-bold { font-weight: bold; }
