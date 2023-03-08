@@ -14,7 +14,8 @@ interface DropdownProperties {
     selected?: string,
     no_icon?: boolean,
     nullable?: boolean,
-    hide_border?: boolean
+    hide_border?: boolean,
+    locked?: boolean
 }
 
 const Dropdown: Component<DropdownProperties> = (props) => {
@@ -25,7 +26,8 @@ const Dropdown: Component<DropdownProperties> = (props) => {
     const [selected, setSelected] = createSignal('');
     const [option, setOption] = createSignal<DropdownItem | null>(null);
 
-    props.nullable = props.nullable === undefined ? true : props.nullable;
+    if(props.nullable === undefined) props.nullable = true;
+    if(props.locked === undefined) props.locked = false;
 
     onMount(() => {
         document.addEventListener('click', onFocusLost);
@@ -47,15 +49,13 @@ const Dropdown: Component<DropdownProperties> = (props) => {
     }
 
     const onDropdownClicked = () => {
-        if(option() && !dropped() && props.items.length == 1) return;
-
+        if(props.locked || (option() && !dropped() && props.items.length == 1)) return;
 
         setDropped(!dropped())
     }
 
     const onRemoveClicked = (event: Event) => {
         setSelected("");
-
         if(props.callback) props.callback("");
     }
 
@@ -75,11 +75,13 @@ const Dropdown: Component<DropdownProperties> = (props) => {
             classList={{ 
                 [styles.dropdown_dropped]: dropped(), 
                 [props.up ? styles.border_bottom : styles.border_top]: dropped(),
-                [styles.dropdown_border]: !props.hide_border
+                [styles.dropdown_border]: !props.hide_border,
+                [styles.disabled]: props.locked
             }}
             ref={container} 
             onClick={onDropdownClicked}
         >
+            <div class={styles.lock}></div>
             <div id={option()?.id || ""} class={styles.item_selected}>
                 <Show when={!props.no_icon}>
                     <Show when={option()?.icon} fallback={<div class={styles.icon}></div>}>

@@ -1,5 +1,5 @@
 import { useParams } from "@solidjs/router";
-import { Component, createResource, For, Show } from "solid-js";
+import { Component, createResource, createSignal, For, Show } from "solid-js";
 import Dropdown, { DropdownItem } from "../../components/Dropdown";
 import SpinLoader from "../../components/SpinLoader";
 import Toggle from "../../components/Toggle";
@@ -12,6 +12,9 @@ const ROMAN = [ 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X' ];
 const Raid: Component = () => {
     const params = useParams();
     const guild_id = params.id;
+
+    const [announcementsLocked, setAnnouncementsLocked] = createSignal(false);
+    const [remindersLocked, setRemindersLocked] = createSignal(false);
 
     const [memberList] = createResource(guild_id, fetchGuildMembers);
     const [channelList] = createResource(guild_id, fetchChannelList);
@@ -56,35 +59,38 @@ const Raid: Component = () => {
                     <div class={styles.category}>
                         <div class={styles.category_top}>
                             <h2 class={styles.category_header}>Announcements</h2>
-                            <Toggle></Toggle>
+                            <Toggle callback={checked => setAnnouncementsLocked(!checked)}/>
                         </div>
 
                         <div class={styles.properties}>
-                            <div class={styles.property}>
+                            <div class={styles.property} classList={{ [styles.disabled]: announcementsLocked() }}>
                                 <p class={styles.property_title}>Channel</p>
                                 <Dropdown
                                     items={channelList()!}
                                     selected={raidInformation()?.announcement_channel}
                                     no_icon={true}
                                     callback={id => { raidInformation()!.announcement_channel = id; }}
+                                    locked={announcementsLocked()}
                                 />
                             </div>
-                            <div class={styles.property}>
+                            <div class={styles.property} classList={{ [styles.disabled]: announcementsLocked() }}>
                                 <p class={styles.property_title}>Fighter role</p>
                                 <Dropdown
                                     items={roleList()!}
                                     selected={raidInformation()?.fight_role}
                                     no_icon={true}
                                     callback={id => { raidInformation()!.fight_role = id; }}
+                                    locked={announcementsLocked()}
                                 />
                             </div>
-                            <div class={styles.property}>
+                            <div class={styles.property} classList={{ [styles.disabled]: announcementsLocked() }}>
                                 <p class={styles.property_title}>Claim role</p>
                                 <Dropdown
                                     items={roleList()!}
                                     selected={raidInformation()?.claim_role}
                                     no_icon={true}
                                     callback={id => {raidInformation()!.claim_role = id; }}
+                                    locked={announcementsLocked()}
                                 />
                             </div>
                         </div>
@@ -93,17 +99,18 @@ const Raid: Component = () => {
                     <div class={styles.category}>
                         <div class={styles.category_top}>
                             <h2>Claim Reminder</h2>
-                            <Toggle></Toggle>
+                            <Toggle callback={ checked => setRemindersLocked(!checked) }/>
                         </div>
 
                         <div class={styles.properties}>
-                            <div class={styles.property}>
+                            <div class={styles.property} classList={{ [styles.disabled]: remindersLocked() }}>
                                 <p class={styles.property_title}>Channel</p>
                                 <Dropdown
                                     items={channelList()!}
                                     selected={raidInformation()?.remind_channel}
                                     no_icon={true}
                                     callback={id => { raidInformation()!.remind_channel = id; }}
+                                    locked={remindersLocked()}
                                 />
                             </div>
                         </div>

@@ -19,6 +19,10 @@
     user-select: none;
 }
 
+.dropdown.disabled > .lock {
+    opacity: 50%;
+}
+
 .dropdown_border {
     border: 1px solid #3B4252;
 }
@@ -31,7 +35,7 @@
     border-radius: 0px 0px 8px 8px !important;
 }
 
-.dropdown:hover, .dropdown_dropped {
+.dropdown:not(.disabled):hover, .dropdown_dropped {
     background-color: #434C5E;
     cursor: pointer;
 }
@@ -128,4 +132,20 @@
     right: 16px;
 
     transform: translateY(-50%);
+}
+
+.lock {
+    background-color: #2E3440;
+
+    position: absolute;
+    content: "";
+
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+    opacity: 0;
+
+    border-radius: 8px;
 }
