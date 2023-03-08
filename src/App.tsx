@@ -5,9 +5,9 @@ import './App.module.css';
 import Home from './views/home/Home';
 import Dashboard from './views/dashboard/Dashboard';
 import Members from './views/dashboard/Members';
-import Schedule from './views/dashboard/Schedule';
 import Setup from './views/dashboard/Setup';
 import Settings from './views/dashboard/Settings';
+import Raid from './views/dashboard/Raid';
 
 const App: Component = () => {
     return (
@@ -17,7 +17,7 @@ const App: Component = () => {
                 <Route path='/dashboard/:id?' component={Dashboard}>
                     <Route path='/' element={<div>Overview</div>} />
                     <Route path='/members' component={Members} />
-                    <Route path='/schedule' component={Schedule} />
+                    <Route path='/raid' component={Raid} />
                     <Route path='/setup' component={Setup} />
                     <Route path='/settings' component={Settings} />
                 </Route>

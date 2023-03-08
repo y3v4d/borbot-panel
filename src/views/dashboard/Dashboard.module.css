@@ -36,6 +36,8 @@
     display: flex;
     flex-direction: column;
 
+    justify-content: space-between;
+
     background-color: #2E3440;
 }
 
@@ -71,8 +73,6 @@
 }
 
 .navigation {
-    flex-grow: 1;
-
     padding: 8px;
 }
 

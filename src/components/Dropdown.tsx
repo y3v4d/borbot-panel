@@ -13,7 +13,8 @@ interface DropdownProperties {
     callback?: (id: string) => void,
     selected?: string,
     no_icon?: boolean,
-    nullable?: boolean
+    nullable?: boolean,
+    hide_border?: boolean
 }
 
 const Dropdown: Component<DropdownProperties> = (props) => {
@@ -71,7 +72,11 @@ const Dropdown: Component<DropdownProperties> = (props) => {
         <div 
             id="dropdown"
             class={styles.dropdown}
-            classList={{ [styles.dropdown_dropped]: dropped(), [props.up ? styles.border_bottom : styles.border_top]: dropped() }}
+            classList={{ 
+                [styles.dropdown_dropped]: dropped(), 
+                [props.up ? styles.border_bottom : styles.border_top]: dropped(),
+                [styles.dropdown_border]: !props.hide_border
+            }}
             ref={container} 
             onClick={onDropdownClicked}
         >

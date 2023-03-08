@@ -10,13 +10,17 @@
     font-weight: bold;
 
     border-radius: 8px;
-
+    
     min-width: 200px;
 
     -webkit-user-select: none;  
     -moz-user-select: none;    
     -ms-user-select: none;      
     user-select: none;
+}
+
+.dropdown_border {
+    border: 1px solid #3B4252;
 }
 
 .border_top {
@@ -90,8 +94,8 @@
 }
 
 .content {
-    margin-top: 4px;
-    margin-bottom: 4px;
+    margin-top: 0px;
+    margin-bottom: 0px;
     margin-left: 8px;
 }
 

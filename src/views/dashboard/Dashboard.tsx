@@ -104,7 +104,7 @@ const Dashboard: Component = () => {
                                 end={true} 
                                 inactiveClass={styles.navigation_link_inactive}
                                 activeClass={styles.navigation_link_active} 
-                                href={`/dashboard/${params.id}/schedule`}
+                                href={`/dashboard/${params.id}/raid`}
                             >
                                 <span class='material-icons'>shield</span>
                                 <p>Raid</p>
@@ -128,6 +128,7 @@ const Dashboard: Component = () => {
                             selected={params.id}
                             callback={(id: string) => navigate(`/dashboard/${id}`)}
                             nullable={false}
+                            hide_border={true}
                         />
                         <span class={`material-icons ${styles.logout}`} onClick={onLogoutClicked}>logout</span>
                     </div>
