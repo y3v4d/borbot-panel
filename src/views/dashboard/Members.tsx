@@ -21,7 +21,13 @@ const Members: Component = () => {
 
     const onSaveButtonClicked = async () => {
         const result = await API.postGuildConnected(guild_id, connected());
+        const patchResult = await API.patchGuild(guild_id, { 
+            milestone_channel: guild.milestone_channel,
+            chat_channel: guild.chat_channel
+        });
+
         console.log(result);
+        console.log(patchResult);
     };
 
     API.getGuildConnected(guild_id).then(async data => {
@@ -69,7 +75,25 @@ const Members: Component = () => {
                                 <p>Channel</p>
                                 <Dropdown
                                     items={channelList()!}
+                                    selected={guild.milestone_channel}
                                     no_icon={true}
+                                    callback={ id => guild.milestone_channel = id }
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class={styles.category}>
+                        <h2>Chat</h2>
+
+                        <div class={styles.properties}>
+                            <div class={styles.property}>
+                                <p>Channel</p>
+                                <Dropdown
+                                    items={channelList()!}
+                                    selected={guild.chat_channel}
+                                    no_icon={true}
+                                    callback={ id => guild.chat_channel = id }
                                 />
                             </div>
                         </div>

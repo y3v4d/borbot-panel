@@ -6,6 +6,11 @@
 }
 
 .left_section {
+    display: flex;
+    flex-direction: column;
+
+    row-gap: 8px;
+    
     flex-grow: 1;
 }
 

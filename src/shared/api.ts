@@ -54,7 +54,10 @@ export namespace API {
         raid_fight_role?: string,
         raid_claim_role?: string,
 
-        remind_channel?: string
+        remind_channel?: string,
+
+        milestone_channel?: string,
+        chat_channel?: string
     }
 
     export type GuildMember = {
@@ -107,7 +110,9 @@ export namespace API {
         raid_announcement_channel?: string,
         raid_fight_role?: string,
         raid_claim_role?: string,
-        remind_channel?: string
+        remind_channel?: string,
+        milestone_channel?: string,
+        chat_channel?: string
     }
 
     export async function getUserInfo() {

@@ -67,6 +67,9 @@ export class Guild {
 
     public remind_channel = "";
 
+    public milestone_channel = "";
+    public chat_channel = "";
+
     public members: GuildMember[];
     public clanMembers: ClanMember[];
 
@@ -109,6 +112,8 @@ export class Guild {
         this.raid_claim_role = data.raid_claim_role || "";
 
         this.remind_channel = data.remind_channel || "";
+        this.milestone_channel = data.milestone_channel || "";
+        this.chat_channel = data.chat_channel || "";
 
         this.extended = true;
 
