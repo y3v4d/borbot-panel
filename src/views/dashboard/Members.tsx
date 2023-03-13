@@ -1,5 +1,5 @@
 import { useParams } from "@solidjs/router";
-import { Component, createSignal, For, Show } from "solid-js";
+import { Component, createResource, createSignal, For, Show } from "solid-js";
 import Dropdown, { DropdownItem } from "../../components/Dropdown";
 import SpinLoader from "../../components/SpinLoader";
 import { API } from "../../shared/api";
@@ -15,9 +15,11 @@ const Members: Component = () => {
     const params = useParams();
     const guild_id = params.id;
 
+    const [channelList] = createResource(guild_id, fetchChannelList);
+
     const guild = GuildCache.getGuild(guild_id)!;
 
-    const onSubmitButtonClicked = async () => {
+    const onSaveButtonClicked = async () => {
         const result = await API.postGuildConnected(guild_id, connected());
         console.log(result);
     };
@@ -52,38 +54,76 @@ const Members: Component = () => {
     }).catch(error => console.error(error))
 
     return (
-        <Show when={guildMembersList().length > 0} fallback={<SpinLoader></SpinLoader>}>
-            <h1 class={styles.header}>Members</h1>
-            <div class={styles.container}>
-                <For each={clanMembers()}>
-                    {
-                        (member, index) => (
-                            <div id={member.uid} class={styles.item}>
-                                <p>{member.nickname}</p>
-                                <Dropdown 
-                                    items={guildMembersList()} 
-                                    selected={connected().find(o => o.clan_uid === member.uid)?.guild_uid}
-                                    callback={(id: string) => {
-                                        const current = connected();
-                                        const option = current.find(o => o.clan_uid === member.uid);
-                                        
-                                        if(option) option.guild_uid = id;
-                                        else current.push({ guild_uid: id, clan_uid: member.uid });
+        <Show when={guildMembersList().length > 0 && !channelList.loading} fallback={<SpinLoader></SpinLoader>}>
+            <div class='top'>
+                <h1>Members</h1>
+                <button class={styles.save_button} onClick={onSaveButtonClicked}>Save</button>
+            </div>
+            <div class={styles.main}>
+                <div class={styles.left_section}>
+                    <div class={styles.category}>
+                        <h2>Milestones</h2>
 
-                                        setConnected(current);
-                                    }}
-                                    up={index() >= clanMembers().length - 2}
+                        <div class={styles.properties}>
+                            <div class={styles.property}>
+                                <p>Channel</p>
+                                <Dropdown
+                                    items={channelList()!}
+                                    no_icon={true}
                                 />
                             </div>
-                        )
-                    }
-                </For>
+                        </div>
+                    </div>
+                </div>
+                <div class={styles.category}>
+                    <h2>Connected</h2>
+                    <div class={styles.member_list}>
+                        <For each={clanMembers()}>
+                            {
+                                (member, index) => (
+                                    <div id={member.uid} class={styles.item}>
+                                        <p>{member.nickname}</p>
+                                        <Dropdown 
+                                            items={guildMembersList()} 
+                                            selected={connected().find(o => o.clan_uid === member.uid)?.guild_uid}
+                                            callback={(id: string) => {
+                                                const current = connected();
+                                                const option = current.find(o => o.clan_uid === member.uid);
+                                                
+                                                if(option) option.guild_uid = id;
+                                                else current.push({ guild_uid: id, clan_uid: member.uid });
+
+                                                setConnected(current);
+                                            }}
+                                            up={index() >= clanMembers().length - 3}
+                                        />
+                                    </div>
+                                )
+                            }
+                        </For>
+                    </div>
+                </div>
             </div>
-            <button class={styles.save_btn} onClick={onSubmitButtonClicked}>
-                <span class='material-icons'>done</span>
-            </button>
         </Show>
     );
 };
+
+async function fetchChannelList(id: string) {
+    const channels = await API.getGuildChannels(id);
+
+    const list: DropdownItem[] = [];
+    for(const channel of channels) {
+        list.push({
+            id: channel.id,
+            content: "#" + channel.name
+        });
+    }
+
+    list.sort((self, other) => {
+        return self.content.charCodeAt(1) - other.content.charCodeAt(1);
+    });
+
+    return list;
+}
 
 export default Members;

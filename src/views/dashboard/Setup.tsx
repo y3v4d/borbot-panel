@@ -39,8 +39,8 @@ const Setup: Component = () => {
 
     return (
         <div class={styles.container}>
-            <div>
-                <h1 class={styles.top_title}>Initial Setup</h1>
+            <div class='top'>
+                <h1>Initial Setup</h1>
             </div>
             <p class={styles.description}>
                 To use the Borbot dashboard, you first have to add the bot to your Discord server and then upload the Clicker Heroes save to get clan credentials.

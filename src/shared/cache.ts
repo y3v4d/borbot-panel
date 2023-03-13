@@ -58,14 +58,20 @@ export class Guild {
     public permissions: string;
     public isAdmin: boolean;
 
-    public extended: boolean = false;
     public is_setup: boolean = false;
     public is_joined: boolean = false;
+
+    public raid_announcement_channel = "";
+    public raid_fight_role = "";
+    public raid_claim_role = "";
+
+    public remind_channel = "";
 
     public members: GuildMember[];
     public clanMembers: ClanMember[];
 
     private watchCallback: GuildUpdateCallback | null = null;
+    public extended: boolean = false;
 
     constructor(data: API.UserGuild) {
         this.id = data.id;
@@ -98,6 +104,12 @@ export class Guild {
         this.is_setup = data.is_setup;
         this.is_joined = data.is_joined;
 
+        this.raid_announcement_channel = data.raid_announcement_channel || "";
+        this.raid_fight_role = data.raid_fight_role || "";
+        this.raid_claim_role = data.raid_claim_role || "";
+
+        this.remind_channel = data.remind_channel || "";
+
         this.extended = true;
 
         console.log(`[GUILD ${this.id} FETCHED]`, this);
@@ -115,16 +127,17 @@ export class Guild {
         const timer = Date.now();
 
         try {
-            const data = await API.getGuildMembers(this.id);
+            const guildMembers = await API.getGuildMembers(this.id);
+            const clanMembers = await API.getGuildClanMembers(this.id);
 
             this.members = [];
             this.clanMembers = [];
 
-            for(const member of data.guild) {
+            for(const member of guildMembers) {
                 this.members.push(new GuildMember(member));
             }
 
-            for(const member of data.clan) {
+            for(const member of clanMembers) {
                 this.clanMembers.push(new ClanMember(member));
             }
 

@@ -11,7 +11,7 @@ export function getCookie(cookieName: string) {
     return "";
 }
 
-export async function callAPI(path: string, params?: any, method: "get" | "post" = "get", ) {
+export async function callAPI(path: string, params?: any, method: "get" | "post" | "delete" = "get") {
     const ENDPOINT = 'http://localhost:3010/api';
 
     try {

@@ -1,7 +1,7 @@
 import { getCookie } from "./utils";
 
 export namespace API {
-    async function request<T>(method: "get" | "post", path: string, params?: any) {
+    async function request<T>(method: "GET" | "POST" | "PATCH", path: string, params?: any) {
         const ENDPOINT = 'http://localhost:3010/api';
 
         try {
@@ -11,7 +11,7 @@ export namespace API {
                     'Content-Type': 'application/json',
                     'Authorization': getCookie('token')
                 },
-                body: method == 'post' ? JSON.stringify(params) : undefined,
+                body: method == 'POST' || method === 'PATCH' ? JSON.stringify(params) : undefined,
                 credentials: 'include'
             });
 
@@ -48,7 +48,13 @@ export namespace API {
         permissions: string,
         isAdmin: boolean,
         is_setup: boolean,
-        is_joined: boolean
+        is_joined: boolean,
+
+        raid_announcement_channel?: string,
+        raid_fight_role?: string,
+        raid_claim_role?: string,
+
+        remind_channel?: string
     }
 
     export type GuildMember = {
@@ -69,11 +75,6 @@ export namespace API {
 
         lastRewardTimestamp: string,
         lastBonusRewardTimestamp: string
-    }
-
-    export type GuildMembers = {
-        clan: ClanMember[],
-        guild: GuildMember[]
     }
 
     export type GuildChannel = {
@@ -97,55 +98,60 @@ export namespace API {
     }
 
     export type GuildSchedule = {
-        id: string,
-        start: string,
-        next_cycle: string,
+        cycle_start: string,
         entries: GuildScheduleEntry[],
-        schedule_channel: string
+        channel: string
     }
 
-    export type GuildRaid = {
-        id: string,
-        announcement_channel: string,
-        fight_role: string,
-        claim_role: string,
-        remind_channel: string
+    export type GuildPatchParams = {
+        raid_announcement_channel?: string,
+        raid_fight_role?: string,
+        raid_claim_role?: string,
+        remind_channel?: string
     }
 
     export async function getUserInfo() {
-        return await request<UserInfo>('get', 'me');
+        return await request<UserInfo>('GET', 'me');
     }
 
     export async function getUserGuilds() {
-        return await request<UserGuild[]>('get', 'me/guilds');
+        return await request<UserGuild[]>('GET', 'me/guilds');
     }
 
     export async function getGuildInfo(id: string) {
-        return await request<GuildInfo>('get', `guilds/${id}`);
+        return await request<GuildInfo>('GET', `guilds/${id}`);
+    }
+
+    export async function patchGuild(id: string, params: GuildPatchParams) {
+        return await request<any>('PATCH', `guilds/${id}`, params);
+    }
+
+    export async function getGuildClanMembers(id: string) {
+        return await request<ClanMember[]>('GET', `guilds/${id}/clan/members`);
     }
 
     export async function getGuildMembers(id: string) {
-        return await request<GuildMembers>('get', `guilds/${id}/members`);
+        return await request<GuildMember[]>('GET', `guilds/${id}/members`);
     }
 
     export async function getGuildChannels(id: string) {
-        return await request<GuildChannel[]>('get', `guilds/${id}/channels`);
+        return await request<GuildChannel[]>('GET', `guilds/${id}/channels`);
     }
 
     export async function getGuildRoles(id: string) {
-        return await request<GuildRole[]>('get', `guilds/${id}/roles`);
+        return await request<GuildRole[]>('GET', `guilds/${id}/roles`);
     }
 
     export async function getGuildConnected(id: string) {
-        return await request<GuildConnected[]>('get', `guilds/${id}/connected`);
+        return await request<GuildConnected[]>('GET', `guilds/${id}/connected`);
     }
 
     export async function postGuildConnected(id: string, connected: GuildConnected[]) {
-        return await request<any>('post', `guilds/${id}/connected`, { data: connected });
+        return await request<any>('POST', `guilds/${id}/connected`, { data: connected });
     }
 
     export async function getGuildSchedule(id: string) {
-        return await request<GuildSchedule>('get', `guilds/${id}/schedule`);
+        return await request<GuildSchedule>('GET', `guilds/${id}/schedule`);
     }
 
     export async function postGuildSchedule(id: string, entries: GuildScheduleEntry[], schedule_channel?: string, cycle_start?: Date) {
@@ -155,21 +161,6 @@ export namespace API {
             cycle_start: cycle_start
         };
 
-        return await request<any>('post', `guilds/${id}/schedule`, params);
-    }
-
-    export async function getGuildRaid(id: string) {
-        return await request<GuildRaid>('get', `guilds/${id}/raid`);
-    }
-
-    export async function postGuildRaid(id: string, announcementChannel?: string, fightRole?: string, claimRole?: string, remindChannel?: string) {
-        const params = {
-            announcement_channel: announcementChannel || "",
-            fight_role: fightRole || "",
-            claim_role: claimRole || "",
-            remind_channel: remindChannel || ""
-        };
-
-        return await request<any>('post', `guilds/${id}/raid`, params);
+        return await request<any>('POST', `guilds/${id}/schedule`, params);
     }
 }

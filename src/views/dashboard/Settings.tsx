@@ -10,7 +10,7 @@ const Settings: Component = () => {
 
     const onUnlinkButtonClicked = async () => {
         try {
-            const data = await callAPI(`/guilds/${params.id}/unsetup`, undefined, 'post');
+            const data = await callAPI(`/guilds/${params.id}`, undefined, 'delete');
             console.log(data);
 
             await guild.fetch(true);
@@ -21,6 +21,10 @@ const Settings: Component = () => {
 
     return (
         <>
+            <div class='top'>
+                <h1>Settings</h1>
+            </div>
+
             <button onClick={onUnlinkButtonClicked}>Unlink clan</button>
         </>
     )

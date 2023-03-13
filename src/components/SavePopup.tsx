@@ -36,7 +36,7 @@ const SavePopup: Component<SavePopupProperties> = (props) => {
         }
 
         try {
-            const data = await callAPI(`/guilds/${params.id}/setup`, { uid: save.uniqueId, pwd: save.passwordHash }, 'post');
+            const data = await callAPI(`/guilds/${params.id}`, { uid: save.uniqueId, pwd: save.passwordHash }, 'post');
             console.log(data);
 
             if(props.onComplete) props.onComplete();

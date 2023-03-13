@@ -37,3 +37,20 @@ html, body {
 .title h2 {
     margin: 16px 0px;
 }
+
+.top {
+    display: flex;
+    flex-direction: row;
+
+    align-items: center;
+    justify-content: space-between;
+
+    margin-top: 8px;
+    margin-bottom: 24px;
+}
+
+.top > h1 {
+    color: #D8DEE9;
+
+    margin: 0px 4px;
+}

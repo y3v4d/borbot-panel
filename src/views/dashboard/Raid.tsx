@@ -16,41 +16,41 @@ const Raid: Component = () => {
     const [announcementsLocked, setAnnouncementsLocked] = createSignal(false);
     const [remindersLocked, setRemindersLocked] = createSignal(false);
 
-    const [memberList] = createResource(guild_id, fetchGuildMembers);
+    const [connectedList] = createResource(guild_id, fetchConnectedMembersList);
     const [channelList] = createResource(guild_id, fetchChannelList);
     const [roleList] = createResource(guild_id, fetchGuildRoles);
 
-    const [raidInformation] = createResource(guild_id, fetchRaidInformation);
     const [schedule] = createResource(guild_id, fetchSchedule);
 
+    const guild = GuildCache.getGuild(guild_id)!;
+
     const onSaveButtonClicked = async () => {
-        if(schedule.loading || raidInformation.loading) return;
+        if(schedule.loading) return;
 
         const scheduleResult = await API.postGuildSchedule(
             guild_id,
             schedule()!.entries,
-            schedule()!.schedule_channel,
-            new Date(schedule()!.start)
+            schedule()!.channel,
+            new Date(schedule()!.cycle_start)
         );
 
-        const raidResult = await API.postGuildRaid(
-            guild_id,
-            raidInformation()!.announcement_channel,
-            raidInformation()!.fight_role,
-            raidInformation()!.claim_role,
-            raidInformation()!.remind_channel
-        )
-
+        const patchGuildResult = await API.patchGuild(guild_id, {
+            raid_announcement_channel: guild.raid_announcement_channel,
+            raid_fight_role: guild.raid_fight_role,
+            raid_claim_role: guild.raid_claim_role,
+            remind_channel: guild.remind_channel
+        });
+        
         console.log(scheduleResult);
-        console.log(raidResult);
+        console.log(patchGuildResult);
     }
 
     return (
         <Show 
-            when={!schedule.loading && !channelList.loading && !roleList.loading && !raidInformation.loading && !memberList.loading} 
+            when={!schedule.loading && !channelList.loading && !roleList.loading && !connectedList.loading} 
             fallback={<SpinLoader></SpinLoader>}
         >
-            <div class={styles.top}>
+            <div class='top'>
                 <h1>Raid</h1>
                 <button class={styles.save_button} onClick={onSaveButtonClicked}>Save</button>
             </div>
@@ -67,9 +67,9 @@ const Raid: Component = () => {
                                 <p class={styles.property_title}>Channel</p>
                                 <Dropdown
                                     items={channelList()!}
-                                    selected={raidInformation()?.announcement_channel}
+                                    selected={guild.raid_announcement_channel}
                                     no_icon={true}
-                                    callback={id => { raidInformation()!.announcement_channel = id; }}
+                                    callback={id => { guild.raid_announcement_channel = id; }}
                                     locked={announcementsLocked()}
                                 />
                             </div>
@@ -77,9 +77,9 @@ const Raid: Component = () => {
                                 <p class={styles.property_title}>Fighter role</p>
                                 <Dropdown
                                     items={roleList()!}
-                                    selected={raidInformation()?.fight_role}
+                                    selected={guild.raid_fight_role}
                                     no_icon={true}
-                                    callback={id => { raidInformation()!.fight_role = id; }}
+                                    callback={id => { guild.raid_fight_role = id; }}
                                     locked={announcementsLocked()}
                                 />
                             </div>
@@ -87,9 +87,9 @@ const Raid: Component = () => {
                                 <p class={styles.property_title}>Claim role</p>
                                 <Dropdown
                                     items={roleList()!}
-                                    selected={raidInformation()?.claim_role}
+                                    selected={guild.raid_claim_role}
                                     no_icon={true}
-                                    callback={id => {raidInformation()!.claim_role = id; }}
+                                    callback={id => {guild.raid_claim_role = id; }}
                                     locked={announcementsLocked()}
                                 />
                             </div>
@@ -107,9 +107,9 @@ const Raid: Component = () => {
                                 <p class={styles.property_title}>Channel</p>
                                 <Dropdown
                                     items={channelList()!}
-                                    selected={raidInformation()?.remind_channel}
+                                    selected={guild.remind_channel}
                                     no_icon={true}
-                                    callback={id => { raidInformation()!.remind_channel = id; }}
+                                    callback={id => { guild.remind_channel = id; }}
                                     locked={remindersLocked()}
                                 />
                             </div>
@@ -128,9 +128,9 @@ const Raid: Component = () => {
                                 <p class={styles.property_title}>Channel</p>
                                 <Dropdown
                                     items={channelList()!}
-                                    selected={schedule()?.schedule_channel}
+                                    selected={schedule()?.channel}
                                     no_icon={true}
-                                    callback={id => { schedule()!.schedule_channel = id }}
+                                    callback={id => { schedule()!.channel = id }}
                                 />
                             </div>
 
@@ -139,10 +139,10 @@ const Raid: Component = () => {
                                 <input 
                                     class={styles.date} 
                                     type='date' 
-                                    value={new Date(schedule()!.start).toLocaleDateString('en-CA')} 
+                                    value={new Date(schedule()!.cycle_start).toLocaleDateString('en-CA')} 
                                     onChange={(event) => {
                                         const target = event.target as HTMLInputElement;
-                                        schedule()!.start = target.valueAsDate!.toISOString();
+                                        schedule()!.cycle_start = target.valueAsDate!.toISOString();
                                     }}>
                                 </input>
                             </div>
@@ -157,7 +157,7 @@ const Raid: Component = () => {
                                             <div id={entry.index.toString()} class={styles.schedule_list_item}>
                                                 <p class={styles.item_p}>{ROMAN[entry.index - 1]}</p>
                                                 <Dropdown 
-                                                    items={memberList()!}
+                                                    items={connectedList()!}
                                                     selected={entry.uid}
                                                     callback={(id: string) => {
                                                         const current = schedule()!.entries;
@@ -216,24 +216,22 @@ async function fetchGuildRoles(id: string) {
     return list;
 }
 
-async function fetchRaidInformation(id: string) {
-    const raid = await API.getGuildRaid(id);
-
-    console.log(`[RAID]`, raid);
-    return raid;
-}
-
-async function fetchGuildMembers(id: string) {
+async function fetchConnectedMembersList(id: string) {
     const guild = GuildCache.getGuild(id);
     if(!guild) {
         throw new Error(`No guild with ${id}`);
     }
-
     await guild.fetchMembers();
 
+    const connected = await API.getGuildConnected(id);
+
     const list: DropdownItem[] = [];
-    for(const member of guild.members) {
-        if(member.isBot) continue;
+    for(const data of connected) {
+        const member = guild.members.find(o => o.id === data.guild_uid);
+        if(!member) {
+            console.warn(`Couldn't find member with id ${data.guild_uid}`);
+            continue;
+        }
 
         list.push({
             id: member.id,
@@ -246,10 +244,16 @@ async function fetchGuildMembers(id: string) {
 }
 
 async function fetchSchedule(id: string) {
-    const schedule = await API.getGuildSchedule(id);
+    try {
+        const schedule = await API.getGuildSchedule(id);
 
-    console.log(`[SCHEDULE]`, schedule);
-    return schedule;
+        console.log(`[SCHEDULE]`, schedule);
+        return schedule;
+    } catch(error: any) {
+        console.error(error);
+        return null;
+    }
+    
 }
 
 export default Raid;
