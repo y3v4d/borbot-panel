@@ -116,11 +116,11 @@ export namespace API {
     }
 
     export async function getUserInfo() {
-        return await request<UserInfo>('GET', 'me');
+        return await request<UserInfo>('GET', 'user');
     }
 
     export async function getUserGuilds() {
-        return await request<UserGuild[]>('GET', 'me/guilds');
+        return await request<UserGuild[]>('GET', 'user/guilds');
     }
 
     export async function getGuildInfo(id: string) {

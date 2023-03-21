@@ -2,11 +2,17 @@ import { Component, createResource, Show } from "solid-js";
 import { callAPI } from "../../shared/utils";
 import styles from "./Home.module.css";
 import { useNavigate } from '@solidjs/router';
+import { API } from "../../shared/api";
 
 const LOGIN_URL='https://discord.com/api/oauth2/authorize?client_id=930275600697004082&redirect_uri=http%3A%2F%2F127.0.0.1%3A3010%2Fapi%2Fauth&response_type=code&scope=identify%20guilds';
 
 const fetchUser = async () => {
-    return await callAPI('/me', null, 'get');
+    try {
+        const user = await API.getUserInfo();
+        return user;
+    } catch(error) {
+        return null;
+    }
 }
 
 const Home: Component = () => {
@@ -38,7 +44,7 @@ const Home: Component = () => {
     return (
         <div class={styles.container}>
             <Show
-                when={ !user.loading && !user.error }
+                when={ !user.loading && !user }
                 fallback={<button onClick={onLoginClicked} class={styles.login_button}>Login with Discord</button>}
             >
                 <button class={styles.login_button} onClick={onDashboardClicked}>Dashboard</button>
