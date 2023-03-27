@@ -12,7 +12,7 @@ export function getCookie(cookieName: string) {
 }
 
 export async function callAPI(path: string, params?: any, method: "get" | "post" | "delete" = "get") {
-    const ENDPOINT = 'http://localhost:3010/api';
+    const ENDPOINT = import.meta.env.VITE_API_ADDRESS;
 
     try {
         const res = await fetch(`${ENDPOINT}${path}`, {
