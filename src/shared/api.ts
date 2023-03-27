@@ -2,7 +2,7 @@ import { getCookie } from "./utils";
 
 export namespace API {
     async function request<T>(method: "GET" | "POST" | "PATCH", path: string, params?: any) {
-        const ENDPOINT = 'http://localhost:3010/api';
+        const ENDPOINT = `${import.meta.env.VITE_API_ADDRESS}/api`;
 
         try {
             const res = await fetch(`${ENDPOINT}/${path}`, {
