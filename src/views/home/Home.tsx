@@ -22,7 +22,7 @@ const Home: Component = () => {
     const onLoginClicked = async (event: Event) => {
         window.open(LOGIN_URL, 'popup', 'width=600,height=800');
         window.onmessage = async (event) => {
-            if(event.origin != import.meta.env.VITE_API_ADDRESS) {
+            if(event.origin != import.meta.env.VITE_ORIGIN) {
                 console.log(`Invalid origin: ${event.origin}`);
                 return;
             }

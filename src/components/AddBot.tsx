@@ -12,7 +12,7 @@ const AddBot: Component<{ callback?: () => void }> = (props) => {
 
         window.open(url, 'popup', 'width=600,height=800');
         window.onmessage = async (event) => {
-            if(event.origin != import.meta.env.VITE_API_ADDRESS) {
+            if(event.origin != import.meta.env.VITE_ORIGIN) {
                 console.log(`Invalid origin: ${event.origin}`);
                 return;
             }
