@@ -4,7 +4,7 @@ import styles from "./Home.module.css";
 import { useNavigate } from '@solidjs/router';
 import { API } from "../../shared/api";
 
-const LOGIN_URL='https://discord.com/api/oauth2/authorize?client_id=930275600697004082&redirect_uri=http%3A%2F%2F127.0.0.1%3A3010%2Fapi%2Fauth&response_type=code&scope=identify%20guilds';
+const LOGIN_URL=import.meta.env.VITE_DISCORD_AUTH as string;
 
 const fetchUser = async () => {
     try {

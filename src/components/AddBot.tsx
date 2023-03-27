@@ -2,7 +2,7 @@ import { useParams } from "@solidjs/router";
 import { Component } from "solid-js";
 import styles from "./AddBot.module.css";
 
-const ADD_URL = `https://discord.com/api/oauth2/authorize?client_id=930275600697004082&permissions=8&redirect_uri=http%3A%2F%2F127.0.0.1%3A3010%2Fapi%2Fauth%2Fback&response_type=code&scope=bot%20applications.commands%20identify`;
+const ADD_URL = import.meta.env.VITE_DISCORD_BOT_AUTH;
 
 const AddBot: Component<{ callback?: () => void }> = (props) => {
     const params = useParams();
