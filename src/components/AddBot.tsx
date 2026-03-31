@@ -9,20 +9,9 @@ const AddBot: Component<{ callback?: () => void }> = (props) => {
 
     const onAddClicked = async (event: Event) => {
         const url = ADD_URL + `&guild_id=${params.id}&disable_guild_select=true`;
-
-        window.open(url, 'popup', 'width=600,height=800');
-        window.onmessage = async (event) => {
-            if(event.origin != import.meta.env.VITE_ORIGIN) {
-                console.log(`Invalid origin: ${event.origin}`);
-                return;
-            }
-
-            try {
-                if(props.callback) props.callback();
-            } catch(error) {
-                console.error(error);
-            }
-        };
+        
+        window.open(url);
+        props.callback?.();
     };
 
     return (

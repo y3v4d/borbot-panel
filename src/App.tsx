@@ -8,13 +8,14 @@ import Members from './views/dashboard/Members';
 import Setup from './views/dashboard/Setup';
 import Settings from './views/dashboard/Settings';
 import Raid from './views/dashboard/Raid';
-import Toggle from './components/Toggle';
+import AuthCallback from './views/auth_callback/AuthCallback';
 
 const App: Component = () => {
     return (
         <>
             <Routes>
                 <Route path='/' component={Home} />
+                <Route path='/auth_callback' component={AuthCallback} />
                 <Route path='/dashboard/:id?' component={Dashboard}>
                     <Route path='/' element={<div>Overview</div>} />
                     <Route path='/members' component={Members} />

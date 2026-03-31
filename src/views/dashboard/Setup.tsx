@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "@solidjs/router";
-import { Component, createSignal, Show } from "solid-js";
+import { Component, createSignal, onCleanup, onMount, Show } from "solid-js";
 import SavePopup from "../../components/SavePopup";
 import AddBot from "../../components/AddBot";
 import styles from './Setup.module.css';
@@ -10,12 +10,38 @@ const Setup: Component = () => {
 
     const guild = GuildCache.getGuild(params.id)!;
     let isClanAdded = guild.is_setup;
+    let botCheckInterval: any = null;
 
     const [isBotAdded, setIsBotAdded] = createSignal(guild.is_joined);
     const [showPopup, setShowPopup] = createSignal(false);
 
+    onCleanup(() => {
+        if(botCheckInterval) {
+            clearInterval(botCheckInterval);
+        }
+    })
+
     const onAddBotSuccess = () => {
-        setIsBotAdded(true);
+        if(botCheckInterval) {
+            console.warn("Bot check interval already running, skipping...");
+            return;
+        }
+
+        let processing = false;
+        botCheckInterval = setInterval(async () => {
+            if(processing) return;
+
+            processing = true;
+            if(isBotAdded()) {
+                clearInterval(botCheckInterval);
+                return;
+            }
+
+            await guild.fetch(true);
+            setIsBotAdded(guild.is_joined);
+
+            processing = false;
+        }, 1000);
     }
 
     const onSaveComplete = async (error: any) => {
