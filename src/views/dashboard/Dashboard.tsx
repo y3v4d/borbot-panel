@@ -1,26 +1,40 @@
-import { Component, createEffect, createSignal, Show } from "solid-js";
-import { callAPI } from "../../shared/utils";
-import { A, Outlet, useNavigate, useParams } from '@solidjs/router';
+import { Component, createEffect, createMemo, createResource, createSignal, Match, Show, Suspense, Switch } from "solid-js";
+import { A, useNavigate, useParams } from '@solidjs/router';
 
 import styles from './Dashboard.module.css';
-import Dropdown, { DropdownItem } from "../../components/Dropdown";
+import Dropdown from "../../components/Dropdown";
 import SpinLoader from "../../components/SpinLoader";
-import Setup from "./Setup";
-import GuildCache, { Guild } from "../../shared/cache";
+import { API } from "../../shared/api";
+import { JSX } from "solid-js/jsx-runtime";
+import { getDefaultAvatarUrl, getGuildIconUrl } from "../../shared/utils";
 
-const Dashboard: Component = () => {
+const Dashboard: Component = (props: { children?: JSX.Element }) => {
     const navigate = useNavigate();
     const params = useParams();
 
-    const [guildList, setGuildList] = createSignal<DropdownItem[]>([]);
-    const [currentGuild, setCurrentGuild] = createSignal<Guild | null>(null, { equals: false });
+    const guildId = createMemo(() => params.id ?? "");
     const [showSidebar, setShowSidebar] = createSignal(false);
 
-    let sidebar: HTMLElement | undefined;
+    const [guilds] = createResource(async () => {
+        const res = await API.getUserGuilds();
+        console.log(`[USER GUILDS FETCHED]`, res);
+        return res;
+    });
+
+    const [currentGuild] = createResource(guildId, async (id) => {
+        if(!id) {
+            return null;
+        }
+
+        const res = await API.getGuildInfo(id);
+        console.log(`[GUILD INFO FETCHED FOR ${id}]`, res);
+
+        return res;
+    });
 
     const onLogoutClicked = async () => {
         try {
-            await callAPI('/auth/logout', {}, 'post');
+            await API.logout();
 
             console.log("Successfully deauthorized.");
             navigate('/');
@@ -29,41 +43,20 @@ const Dashboard: Component = () => {
         }
     }
 
-    GuildCache.fetch().then(() => {
-        const items: DropdownItem[] = [];
-        for(const guild of GuildCache.guilds) {
-            if(guild.isAdmin) {
-                items.push({ content: guild.name, icon: guild.icon, id: guild.id });
-            }
-        }
+    createEffect(() => {
+        if(currentGuild.loading) return;
 
-        setGuildList(items);
-    }).catch((error: any) => {
-        console.error(error);
-
-        if(error.status === 401) {
-            navigate('/');
-        }
-    });
-
-    createEffect(async () => {
-        if(guildList().length == 0 || params.id === undefined) return;
-        setCurrentGuild(null);
-
-        const guild = GuildCache.getGuild(params.id);
-        if(!guild || !guild.isAdmin) {
-            navigate('/');
+        const guild = currentGuild();
+        if(!guild) {
+            console.warn(`Guild with id ${guildId()} not found`);
             return;
         }
 
-        await guild.fetch();
-        setCurrentGuild(guild);
-        
-        guild.watch(g => {
-            if(g.id !== params.id) return;
-
-            setCurrentGuild(g);
-        });
+        if(!guild.is_joined || !guild.is_setup) {
+            navigate(`/dashboard/${guild.id}/setup`);
+        } else {
+            navigate(`/dashboard/${guild.id}`);
+        }
     });
 
     return (
@@ -76,8 +69,8 @@ const Dashboard: Component = () => {
                 <h2>BORBOT</h2>
             </header>
             <div class={styles.container}>
-                <section ref={sidebar!} class={styles.sidebar} classList={{ [styles.show]: showSidebar() }}>
-                    <Show when={currentGuild()?.is_setup && currentGuild()?.is_joined} fallback={<div class={styles.fill}></div>}>
+                <section class={styles.sidebar} classList={{ [styles.show]: showSidebar() }}>
+                    <Show when={!currentGuild.loading && !currentGuild.error && currentGuild()?.is_setup && currentGuild()?.is_joined} fallback={<div class={styles.fill}></div>}>
                         <nav class={styles.navigation}>
                             <A 
                                 onClick={() => setShowSidebar(false)} 
@@ -122,25 +115,45 @@ const Dashboard: Component = () => {
                         </nav>
                     </Show>
                     <div class={styles.sidebar_bottom}>
-                        <Dropdown 
-                            items={guildList()} 
-                            up={true} 
-                            selected={params.id}
-                            callback={(id: string) => navigate(`/dashboard/${id}`)}
-                            nullable={false}
-                            hide_border={true}
-                        />
+                        <Suspense fallback={<SpinLoader></SpinLoader>}>
+                            <Switch>
+                                <Match when={guilds.error}>
+                                    <p>Error loading guilds</p>
+                                </Match>
+                                <Match when={guilds()}>
+                                    <Dropdown 
+                                        items={guilds()!.map(guild => ({ 
+                                            id: guild.id, 
+                                            content: guild.name, 
+                                            icon: guild.icon ? getGuildIconUrl(guild.id, guild.icon) : getDefaultAvatarUrl(guild.name)
+                                        }))} 
+                                        up={true} 
+                                        selected={guildId()}
+                                        callback={(id: string) => {
+                                            navigate(`/dashboard/${id}`)
+                                        }}
+                                        nullable={false}
+                                        hide_border={true}
+                                    />
+                                </Match>
+                            </Switch>
+                        </Suspense>
+                        
                         <span class={`material-icons ${styles.logout}`} onClick={onLogoutClicked}>logout</span>
                     </div>
                 </section>
                 <div class={styles.dashboard_container}>
-                    <Show when={guildList() && currentGuild()?.extended} fallback={<SpinLoader></SpinLoader>}>
-                        <Show 
-                            when={currentGuild()?.is_joined && currentGuild()?.is_setup} 
-                            fallback={<Setup></Setup>}
-                        >
-                            <Outlet />
-                        </Show>
+                    <Show when={!currentGuild.loading && !currentGuild.error} fallback={<SpinLoader></SpinLoader>}>
+                        <Switch>
+                            <Match when={currentGuild.error}>
+                                <div class={styles.fill}>
+                                    <p>Error loading guild info</p>
+                                </div>
+                            </Match>
+                            <Match when={currentGuild()}>
+                                {props.children}
+                            </Match>
+                        </Switch>
                     </Show>
                 </div>
             </div>

@@ -97,6 +97,19 @@
     border-radius: 50%;
 }
 
+.no_icon {
+    background-color: #3B4252;
+
+    width: 46px;
+    height: 46px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .content {
     margin-top: 0px;
     margin-bottom: 0px;

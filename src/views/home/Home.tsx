@@ -1,5 +1,4 @@
 import { Component, createResource, Show } from "solid-js";
-import { callAPI } from "../../shared/utils";
 import styles from "./Home.module.css";
 import { useNavigate } from '@solidjs/router';
 import { API } from "../../shared/api";
@@ -28,7 +27,7 @@ const Home: Component = () => {
             }
 
             try {
-                await callAPI('/auth/login', { code: event.data }, 'post');
+                await API.login(event.data);
                 navigate('/dashboard');
             } catch(error) {
                 console.error(error);

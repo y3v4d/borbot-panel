@@ -2,8 +2,8 @@ import { useParams } from "@solidjs/router";
 import { Component } from "solid-js";
 import { createStore } from "solid-js/store";
 import { decryptSavedata } from "../shared/savefile";
-import { callAPI } from "../shared/utils";
 import styles from "./SavePopup.module.css";
+import { API } from "../shared/api";
 
 interface SavePopupProperties {
     onClose?: () => void, 
@@ -12,6 +12,7 @@ interface SavePopupProperties {
 
 const SavePopup: Component<SavePopupProperties> = (props) => {
     const params = useParams();
+    const guildId = params.id!;
 
     const [form, setForm] = createStore({
         data: ""
@@ -36,7 +37,7 @@ const SavePopup: Component<SavePopupProperties> = (props) => {
         }
 
         try {
-            const data = await callAPI(`/guilds/${params.id}`, { uid: save.uniqueId, pwd: save.passwordHash }, 'post');
+            const data = await API.setupGuild(guildId, save.uniqueId, save.passwordHash);
             console.log(data);
 
             if(props.onComplete) props.onComplete();

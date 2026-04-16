@@ -2,6 +2,7 @@ import { Component } from "solid-js";
 import styles from './Toggle.module.css';
 
 interface ToggleProperties {
+    checked?: boolean;
     callback?: (checked: boolean) => void
 }
 
@@ -14,7 +15,7 @@ const Toggle: Component<ToggleProperties> = (props) => {
 
     return (
         <label class={styles.main}>
-            <input checked={true} type="checkbox" onChange={onToggleSwitched}></input>
+            <input checked={props.checked} type="checkbox" onChange={onToggleSwitched}></input>
             <span class={styles.toggle}></span>
         </label>
     )

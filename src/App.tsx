@@ -1,5 +1,5 @@
 import type { Component } from 'solid-js';
-import { Routes, Route } from '@solidjs/router';
+import { Route, Router } from '@solidjs/router';
 
 import './App.module.css';
 import Home from './views/home/Home';
@@ -12,20 +12,18 @@ import AuthCallback from './views/auth_callback/AuthCallback';
 
 const App: Component = () => {
     return (
-        <>
-            <Routes>
-                <Route path='/' component={Home} />
-                <Route path='/auth_callback' component={AuthCallback} />
-                <Route path='/dashboard/:id?' component={Dashboard}>
-                    <Route path='/' element={<div>Overview</div>} />
-                    <Route path='/members' component={Members} />
-                    <Route path='/raid' component={Raid} />
-                    <Route path='/setup' component={Setup} />
-                    <Route path='/settings' component={Settings} />
-                </Route>
-                <Route path="*" element={<div>404: Unknown route</div>} />
-            </Routes>
-        </>
+        <Router>
+            <Route path='/' component={Home} />
+            <Route path='/auth_callback' component={AuthCallback} />
+            <Route path='/dashboard/:id?' component={Dashboard}>
+                <Route path='/' component={() => <div>Overview</div>} />
+                <Route path='/members' component={Members} />
+                <Route path='/raid' component={Raid} />
+                <Route path='/setup' component={Setup} />
+                <Route path='/settings' component={Settings} />
+            </Route>
+            <Route path="*" component={() => <div>404: Unknown route</div>} />
+        </Router>
     );
 };
 

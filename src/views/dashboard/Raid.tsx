@@ -1,11 +1,12 @@
 import { useParams } from "@solidjs/router";
-import { Component, createResource, createSignal, For, Show } from "solid-js";
-import Dropdown, { DropdownItem } from "../../components/Dropdown";
+import { Component, createResource, For, Match, Show, Suspense, Switch } from "solid-js";
 import SpinLoader from "../../components/SpinLoader";
 import Toggle from "../../components/Toggle";
 import { API } from "../../shared/api";
-import GuildCache from "../../shared/cache";
 import styles from './Raid.module.css';
+import { createForm } from "../../shared/form";
+import { ResourcePicker } from "../../components/ResourcePicker";
+import { extractResourceKey, getAvatarUrl } from "../../shared/utils";
 
 const ROMAN = [ 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X' ];
 
@@ -13,43 +14,114 @@ const Raid: Component = () => {
     const params = useParams();
     const guild_id = params.id;
 
-    const [announcementsLocked, setAnnouncementsLocked] = createSignal(false);
-    const [remindersLocked, setRemindersLocked] = createSignal(false);
+    const [guildMembers] = createResource(guild_id, async (id) => {
+        const res = await API.getGuildMembers(id);
+        const formatted: { [clan_uid: string]: API.GuildMember } = {};
+        for(const member of res) {
+            formatted[member.clan_uid] = member;
+        }
 
-    const [connectedList] = createResource(guild_id, fetchConnectedMembersList);
-    const [channelList] = createResource(guild_id, fetchChannelList);
-    const [roleList] = createResource(guild_id, fetchGuildRoles);
+        return formatted;
+    });
 
-    const [schedule] = createResource(guild_id, fetchSchedule);
+    const [guildResource, { refetch: refetchGuildInfo }] = createResource(
+        () => guild_id,
+        API.getGuildInfo
+    );
 
-    const guild = GuildCache.getGuild(guild_id)!;
+    const announcementsForm = createForm(() => ({
+        channel: extractResourceKey(guildResource, "raid")?.channel,
+        fight_role: extractResourceKey(guildResource, "raid")?.fight_role,
+        claim_role: extractResourceKey(guildResource, "raid")?.claim_role,
+        enabled: extractResourceKey(guildResource, "raid") ? true : false
+    }));
+
+    const claimRemindForm = createForm(() => ({
+        channel: extractResourceKey(guildResource, "remind")?.channel,
+        enabled: extractResourceKey(guildResource, "remind") ? true : false
+    }));
+
+    const scheduleForm = createForm(() => ({
+        channel: extractResourceKey(guildResource, "schedule")?.channel,
+        cycle_start: extractResourceKey(guildResource, "schedule")?.cycle_start,
+        list: extractResourceKey(guildResource, "schedule")?.list,
+        enabled: extractResourceKey(guildResource, "schedule") ? true : false
+    }));
 
     const onSaveButtonClicked = async () => {
-        if(schedule.loading) return;
+        const raidChanges = announcementsForm.changes();
+        const remindChanges = claimRemindForm.changes();
+        const scheduleChanges = scheduleForm.changes();
 
-        const scheduleResult = await API.postGuildSchedule(
-            guild_id,
-            schedule()!.entries,
-            schedule()!.channel,
-            new Date(schedule()!.cycle_start)
-        );
+        if(raidChanges) {
+            console.log("Saving raid changes...", raidChanges);
 
-        const patchGuildResult = await API.patchGuild(guild_id, {
-            raid_announcement_channel: guild.raid_announcement_channel,
-            raid_fight_role: guild.raid_fight_role,
-            raid_claim_role: guild.raid_claim_role,
-            remind_channel: guild.remind_channel
-        });
-        
-        console.log(scheduleResult);
-        console.log(patchGuildResult);
+            try {
+                if('enabled' in raidChanges && !raidChanges.enabled) {
+                    await API.unsetGuildRaid(guild_id!);
+                } else {
+                    await API.setGuildRaid(guild_id!, {
+                        channel: raidChanges.channel?.id,
+                        fight_role: raidChanges.fight_role?.id,
+                        claim_role: raidChanges.claim_role?.id
+                    });
+                }
+            } catch(error) {
+                console.error("Error saving raid changes:", error);
+                announcementsForm.reset();
+            }
+        }
+
+        if(remindChanges) {
+            console.log("Saving claim reminder changes...", remindChanges);
+
+            try {
+                if('enabled' in remindChanges && !remindChanges.enabled) {
+                    await API.unsetGuildRemind(guild_id!);
+                } else {
+                    await API.setGuildRemind(guild_id!, {
+                        channel: remindChanges.channel?.id
+                    });
+                }
+            } catch(error) {
+                console.error("Error saving claim reminder changes:", error);
+                claimRemindForm.reset();
+            }
+        }
+
+        if(scheduleChanges) {
+            console.log("Saving schedule changes...", scheduleChanges);
+
+            try {
+                if('enabled' in scheduleChanges && !scheduleChanges.enabled) {
+                    await API.unsetGuildSchedule(guild_id!);
+                } else {
+                    await API.setGuildSchedule(guild_id!, {
+                        channel: scheduleChanges.channel?.id,
+                        cycle_start: scheduleChanges.cycle_start,
+                        list: "list" in scheduleChanges ? scheduleForm.state.list : undefined
+                    });
+                }
+            } catch(error) {
+                console.error("Error saving schedule changes:", error);
+                scheduleForm.reset();
+            }
+        }
+
+        if(!raidChanges && !remindChanges && !scheduleChanges) {
+            console.log("No changes to save.");
+            return;
+        }
+
+        try {
+            await refetchGuildInfo();
+        } catch(error) {
+            console.error("Error refetching guild info after saving raid changes:", error);
+        }
     }
 
     return (
-        <Show 
-            when={!schedule.loading && !channelList.loading && !roleList.loading && !connectedList.loading} 
-            fallback={<SpinLoader></SpinLoader>}
-        >
+        <Show when={!guildResource.loading && !guildResource.error && !guildMembers.loading && !guildMembers.error} fallback={<SpinLoader></SpinLoader>}>
             <div class='top'>
                 <h1>Raid</h1>
                 <button class={styles.save_button} onClick={onSaveButtonClicked}>Save</button>
@@ -59,38 +131,74 @@ const Raid: Component = () => {
                     <div class={styles.category}>
                         <div class={styles.category_top}>
                             <h2 class={styles.category_header}>Announcements</h2>
-                            <Toggle callback={checked => setAnnouncementsLocked(!checked)}/>
+                            <Toggle checked={announcementsForm.state.enabled} callback={checked => announcementsForm.setState("enabled", checked)}/>
                         </div>
 
                         <div class={styles.properties}>
-                            <div class={styles.property} classList={{ [styles.disabled]: announcementsLocked() }}>
+                            <div class={styles.property} classList={{ [styles.disabled]: !announcementsForm.state.enabled }}>
                                 <p class={styles.property_title}>Channel</p>
-                                <Dropdown
-                                    items={channelList()!}
-                                    selected={guild.raid_announcement_channel}
-                                    no_icon={true}
-                                    callback={id => { guild.raid_announcement_channel = id; }}
-                                    locked={announcementsLocked()}
+                                <ResourcePicker
+                                    title="Select raid announcement channel"
+                                    value={announcementsForm.state.channel}
+                                    placeholder="Not set"
+                                    loadItems={async () => {
+                                        const channels = await API.getGuildDiscordChannels(guild_id!);
+                                        return channels
+                                            .map((c) => ({ id: c.id, name: c.name }))
+                                            .sort((a, b) => a.name.localeCompare(b.name));
+                                    }}
+                                    onSelect={(channel) => {
+                                        announcementsForm.setState("channel", {
+                                            id: channel.id,
+                                            name: channel.name,
+                                            valid: true,
+                                        });
+                                    }}
+                                    renderValue={(channel) => <p class="text-white">#{channel.name}</p>}
                                 />
                             </div>
-                            <div class={styles.property} classList={{ [styles.disabled]: announcementsLocked() }}>
+                            <div class={styles.property} classList={{ [styles.disabled]: !announcementsForm.state.enabled }}>
                                 <p class={styles.property_title}>Fighter role</p>
-                                <Dropdown
-                                    items={roleList()!}
-                                    selected={guild.raid_fight_role}
-                                    no_icon={true}
-                                    callback={id => { guild.raid_fight_role = id; }}
-                                    locked={announcementsLocked()}
+                                <ResourcePicker
+                                    title="Select fighter role"
+                                    value={announcementsForm.state.fight_role}
+                                    placeholder="Not set"
+                                    loadItems={async () => {
+                                        const roles = await API.getGuildDiscordRoles(guild_id!);
+                                        return roles
+                                            .map((r) => ({ id: r.id, name: r.name }))
+                                            .sort((a, b) => a.name.localeCompare(b.name));
+                                    }}
+                                    onSelect={(role) => {
+                                        announcementsForm.setState("fight_role", {
+                                            id: role.id,
+                                            name: role.name,
+                                            valid: true
+                                        });
+                                    }}
+                                    renderValue={(role) => <p class="text-white">{role.name}</p>}
                                 />
                             </div>
-                            <div class={styles.property} classList={{ [styles.disabled]: announcementsLocked() }}>
+                            <div class={styles.property} classList={{ [styles.disabled]: !announcementsForm.state.enabled }}>
                                 <p class={styles.property_title}>Claim role</p>
-                                <Dropdown
-                                    items={roleList()!}
-                                    selected={guild.raid_claim_role}
-                                    no_icon={true}
-                                    callback={id => {guild.raid_claim_role = id; }}
-                                    locked={announcementsLocked()}
+                                <ResourcePicker
+                                    title="Select claim role"
+                                    value={announcementsForm.state.claim_role}
+                                    placeholder="Not set"
+                                    loadItems={async () => {
+                                        const roles = await API.getGuildDiscordRoles(guild_id!);
+                                        return roles
+                                            .map((r) => ({ id: r.id, name: r.name }))
+                                            .sort((a, b) => a.name.localeCompare(b.name));
+                                    }}
+                                    onSelect={(role) => {
+                                        announcementsForm.setState("claim_role", {
+                                            id: role.id,
+                                            name: role.name,
+                                            valid: true
+                                        });
+                                    }}
+                                    renderValue={(role) => <p class="text-white">{role.name}</p>}
                                 />
                             </div>
                         </div>
@@ -99,18 +207,30 @@ const Raid: Component = () => {
                     <div class={styles.category}>
                         <div class={styles.category_top}>
                             <h2>Claim Reminder</h2>
-                            <Toggle callback={ checked => setRemindersLocked(!checked) }/>
+                            <Toggle checked={claimRemindForm.state.enabled} callback={ checked => claimRemindForm.setState("enabled", checked) }/>
                         </div>
 
                         <div class={styles.properties}>
-                            <div class={styles.property} classList={{ [styles.disabled]: remindersLocked() }}>
+                            <div class={styles.property} classList={{ [styles.disabled]: !claimRemindForm.state.enabled }}>
                                 <p class={styles.property_title}>Channel</p>
-                                <Dropdown
-                                    items={channelList()!}
-                                    selected={guild.remind_channel}
-                                    no_icon={true}
-                                    callback={id => { guild.remind_channel = id; }}
-                                    locked={remindersLocked()}
+                                <ResourcePicker
+                                    title="Select claim reminder channel"
+                                    value={claimRemindForm.state.channel}
+                                    placeholder="Not set"
+                                    loadItems={async () => {
+                                        const channels = await API.getGuildDiscordChannels(guild_id!);
+                                        return channels
+                                            .map((c) => ({ id: c.id, name: c.name }))
+                                            .sort((a, b) => a.name.localeCompare(b.name));
+                                    }}
+                                    onSelect={(channel) => {
+                                        claimRemindForm.setState("channel", {
+                                            id: channel.id,
+                                            name: channel.name,
+                                            valid: true
+                                        });
+                                    }}
+                                    renderValue={(channel) => <p class="text-white">#{channel.name}</p>}
                                 />
                             </div>
                         </div>
@@ -120,54 +240,97 @@ const Raid: Component = () => {
                 <div class={styles.category}>
                     <div class={styles.category_top}>
                         <h2>Schedule</h2>
+                        <Toggle checked={scheduleForm.state.enabled} callback={checked => scheduleForm.setState("enabled", checked) }/>
                     </div>
 
                     <div class={styles.category_schedule_container}>
                         <div class={styles.properties}>
-                            <div class={styles.property}>
+                            <div class={styles.property} classList={{ [styles.disabled]: !scheduleForm.state.enabled }}>
                                 <p class={styles.property_title}>Channel</p>
-                                <Dropdown
-                                    items={channelList()!}
-                                    selected={schedule()?.channel}
-                                    no_icon={true}
-                                    callback={id => { schedule()!.channel = id }}
+                                <ResourcePicker
+                                    title="Select schedule channel"
+                                    value={scheduleForm.state.channel}
+                                    placeholder="Not set"
+                                    loadItems={async () => {
+                                        const channels = await API.getGuildDiscordChannels(guild_id!);
+                                        return channels
+                                            .map((c) => ({ id: c.id, name: c.name }))
+                                            .sort((a, b) => a.name.localeCompare(b.name));
+                                    }}
+                                    onSelect={(channel) => {
+                                        scheduleForm.setState("channel", {
+                                            id: channel.id,
+                                            name: channel.name,
+                                            valid: true
+                                        });
+                                    }}
+                                    renderValue={(channel) => <p class="text-white">#{channel.name}</p>}
                                 />
                             </div>
 
-                            <div class={styles.property}>
+                            <div class={styles.property} classList={{ [styles.disabled]: !scheduleForm.state.enabled }}>
                                 <p class={styles.property_title}>Cycle start</p>
                                 <input 
                                     class={styles.date} 
                                     type='date' 
-                                    value={new Date(schedule()!.cycle_start).toLocaleDateString('en-CA')} 
+                                    value={new Date(scheduleForm.state.cycle_start || '').toLocaleDateString('en-CA')} 
                                     onChange={(event) => {
                                         const target = event.target as HTMLInputElement;
-                                        schedule()!.cycle_start = target.valueAsDate!.toISOString();
+                                        const date = new Date(target.value);
+
+                                        scheduleForm.setState("cycle_start", date);
                                     }}>
                                 </input>
                             </div>
                         </div>
 
-                        <div class={`${styles.property} ${styles.property_vertical}`}>
+                        <div class={`${styles.property} ${styles.property_vertical}`} classList={{ [styles.disabled]: !scheduleForm.state.enabled }}>
                             <p class={styles.property_title}>List</p>
                             <div class={styles.schedule_list}>
-                                <For each={schedule()?.entries}>
-                                    {
-                                        entry => (
-                                            <div id={entry.index.toString()} class={styles.schedule_list_item}>
-                                                <p class={styles.item_p}>{ROMAN[entry.index - 1]}</p>
-                                                <Dropdown 
-                                                    items={connectedList()!}
-                                                    selected={entry.uid}
-                                                    callback={(id: string) => {
-                                                        const current = schedule()!.entries;
-                                                        const found = current.find(o => o.index == entry.index)!;
-                                                        found.uid = id;
-                                                    }}
-                                                />
-                                            </div>
-                                        )
-                                    }
+                                <For each={scheduleForm.state.list || Array(10).fill(null)}>
+                                    {(entry, index) => (
+                                        <div class={styles.schedule_list_item}>
+                                            <p class={styles.item_p}>{ROMAN[index()]}</p>
+                                            <ResourcePicker
+                                                title="Select member"
+                                                value={guildMembers()?.[entry ?? ""] ?? null}
+                                                placeholder="Untaken"
+
+                                                loadItems={() => {
+                                                    return Object.values(guildMembers() || {});
+                                                }}
+
+                                                onSelect={(member) => {
+                                                    scheduleForm.setState("list", (prevList) => {
+                                                        const newList = [...(prevList || Array(10).fill(null))];
+                                                        newList[index()] = member.clan_uid;
+
+                                                        return newList;
+                                                    });
+                                                }}
+
+                                                renderValue={(member) => (
+                                                    <div class="flex items-center gap-2">
+                                                        <Switch>
+                                                            <Match when={member.discord?.avatar}>
+                                                                <img 
+                                                                    class="rounded-full w-6 h-6"
+                                                                    src={getAvatarUrl(member.discord!.user_id, member.discord!.avatar)} 
+                                                                    alt="Avatar" 
+                                                                />
+                                                            </Match>
+                                                            <Match when={!member.discord?.avatar}>
+                                                                <div class="rounded-full overflow-hidden w-6 h-6 flex items-center justify-center bg-gray-500">
+                                                                    <p class="text-xs uppercase text-white">{member.nickname.slice(0, 2)}</p>
+                                                                </div>
+                                                            </Match>
+                                                        </Switch>
+                                                        <p class="text-white">{member.nickname}</p>
+                                                    </div>
+                                                )}
+                                            />
+                                        </div>
+                                    )}
                                 </For>
                             </div>
                         </div>
@@ -176,84 +339,6 @@ const Raid: Component = () => {
             </div>
         </Show>
     );
-}
-
-async function fetchChannelList(id: string) {
-    const channels = await API.getGuildChannels(id);
-
-    const list: DropdownItem[] = [];
-    for(const channel of channels) {
-        list.push({
-            id: channel.id,
-            content: "#" + channel.name
-        });
-    }
-
-    list.sort((self, other) => {
-        return self.content.charCodeAt(1) - other.content.charCodeAt(1);
-    });
-
-    return list;
-}
-
-async function fetchGuildRoles(id: string) {
-    const roles = await API.getGuildRoles(id);
-
-    const list: DropdownItem[] = [];
-    for(const role of roles) {
-        if(role.name === "@everyone") continue;
-
-        list.push({
-            id: role.id,
-            content: role.name
-        });
-    }
-
-    list.sort((self, other) => {
-        return self.content.charCodeAt(0) - other.content.charCodeAt(0);
-    });
-
-    return list;
-}
-
-async function fetchConnectedMembersList(id: string) {
-    const guild = GuildCache.getGuild(id);
-    if(!guild) {
-        throw new Error(`No guild with ${id}`);
-    }
-    await guild.fetchMembers();
-
-    const connected = await API.getGuildConnected(id);
-
-    const list: DropdownItem[] = [];
-    for(const data of connected) {
-        const member = guild.members.find(o => o.id === data.guild_uid);
-        if(!member) {
-            console.warn(`Couldn't find member with id ${data.guild_uid}`);
-            continue;
-        }
-
-        list.push({
-            id: member.id,
-            icon: member.avatar,
-            content: member.username
-        });
-    }
-
-    return list;
-}
-
-async function fetchSchedule(id: string) {
-    try {
-        const schedule = await API.getGuildSchedule(id);
-
-        console.log(`[SCHEDULE]`, schedule);
-        return schedule;
-    } catch(error: any) {
-        console.error(error);
-        return null;
-    }
-    
 }
 
 export default Raid;

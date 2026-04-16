@@ -1,4 +1,4 @@
-import { Component, createEffect, createSignal, For, onCleanup, onMount, Show } from "solid-js";
+import { Component, createEffect, createSignal, For, Match, onCleanup, onMount, Show, Switch } from "solid-js";
 import styles from './Dropdown.module.css';
 
 export interface DropdownItem {
@@ -10,6 +10,7 @@ export interface DropdownItem {
 interface DropdownProperties {
     items: DropdownItem[],
     up?: boolean,
+    on_open?: () => void,
     callback?: (id: string) => void,
     selected?: string,
     no_icon?: boolean,
@@ -41,6 +42,10 @@ const Dropdown: Component<DropdownProperties> = (props) => {
         if(props.items) setOption(props.items.find((o) => o.id === selected()) || null);
     });
 
+    createEffect(() => {
+        setSelected(props.selected || '');
+    })
+
     const onFocusLost = (event: MouseEvent) => {
         const target = (event.target as HTMLElement).closest('#dropdown');
         if(!target || !target.isEqualNode(container!)) {
@@ -51,7 +56,8 @@ const Dropdown: Component<DropdownProperties> = (props) => {
     const onDropdownClicked = () => {
         if(props.locked || (option() && !dropped() && props.items.length == 1)) return;
 
-        setDropped(!dropped())
+        setDropped(!dropped());
+        if(dropped() && props.on_open) props.on_open();
     }
 
     const onRemoveClicked = (event: Event) => {
@@ -61,12 +67,9 @@ const Dropdown: Component<DropdownProperties> = (props) => {
 
     const onItemClicked = (event: Event) => {
         const element: HTMLElement = (event.target as HTMLElement).closest('div')!;
-        setSelected(element.id);
-
+        //setSelected(element.id);
         if(props.callback) props.callback(element.id);
     }
-
-    if(props.selected) setSelected(props.selected);
 
     return (
         <div 
@@ -106,9 +109,16 @@ const Dropdown: Component<DropdownProperties> = (props) => {
                                 classList={{[styles.selected]: selected() == item.id}} 
                                 onClick={onItemClicked}
                             >
-                                <Show when={!props.no_icon}>
-                                    <img class={styles.icon} src={item.icon}></img>
-                                </Show>
+                                <Switch>
+                                    <Match when={item.icon}>
+                                        <img class={styles.icon} src={item.icon}></img>
+                                    </Match>
+                                    <Match when={!item.icon}>
+                                        <div class={styles.no_icon}>
+                                            <p>{item.content[0]}</p>
+                                        </div>
+                                    </Match>
+                                </Switch>
                                 <p class={styles.content}>{item.content}</p>
                             </div>
                         )

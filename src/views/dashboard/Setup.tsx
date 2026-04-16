@@ -1,18 +1,31 @@
 import { useNavigate, useParams } from "@solidjs/router";
-import { Component, createSignal, onCleanup, onMount, Show } from "solid-js";
+import { Component, createMemo, createResource, createSignal, onCleanup, onMount, Show } from "solid-js";
 import SavePopup from "../../components/SavePopup";
 import AddBot from "../../components/AddBot";
 import styles from './Setup.module.css';
-import GuildCache, { Guild } from "../../shared/cache";
+import { API } from "../../shared/api";
 
 const Setup: Component = () => {
+    const navigate = useNavigate();
     const params = useParams();
+    const guild_id = params.id!;
 
-    const guild = GuildCache.getGuild(params.id)!;
-    let isClanAdded = guild.is_setup;
     let botCheckInterval: any = null;
 
-    const [isBotAdded, setIsBotAdded] = createSignal(guild.is_joined);
+    const [guild, { refetch: refetchGuild }] = createResource(async () => {
+        const res = await API.getGuildInfo(guild_id);
+        console.log(`[GUILD INFO FETCHED FOR ${guild_id}]`, res);
+
+        return res;
+    })
+
+    const isBotAdded = createMemo(() => {
+        if(guild.loading) return false;
+
+        const data = guild();
+        return data ? data.is_joined : false;
+    });
+
     const [showPopup, setShowPopup] = createSignal(false);
 
     onCleanup(() => {
@@ -37,29 +50,24 @@ const Setup: Component = () => {
                 return;
             }
 
-            await guild.fetch(true);
-            setIsBotAdded(guild.is_joined);
-
-            processing = false;
+            try {
+                await refetchGuild();
+            } catch(error) {
+                console.error("Error fetching guild info:", error);
+            } finally {
+                processing = false;
+            }
         }, 1000);
     }
 
     const onSaveComplete = async (error: any) => {
-        if(error) {
-            const guild = GuildCache.getGuild(params.id)!;
-
-            isClanAdded = guild.is_setup;
-            setIsBotAdded(guild.is_joined);
+        try {
+            await refetchGuild();
+            navigate(`/dashboard`);
+        } catch(err) {
+            console.error("Error fetching guild info:", err);
+        } finally {
             setShowPopup(false);
-
-            return;
-        }
-
-        isClanAdded = true;
-
-        if(isClanAdded && isBotAdded()) {
-            const cache = GuildCache.getGuild(params.id)!;
-            await cache.fetch(true);
         }
     }
 

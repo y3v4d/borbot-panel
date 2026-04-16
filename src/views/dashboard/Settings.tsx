@@ -1,19 +1,18 @@
-import { useParams } from "@solidjs/router";
+import { useNavigate, useParams } from "@solidjs/router";
 import { Component } from "solid-js";
-import GuildCache from "../../shared/cache";
-import { callAPI } from "../../shared/utils";
+import { API } from "../../shared/api";
 
 const Settings: Component = () => {
+    const navigate = useNavigate();
     const params = useParams();
-    const guild_id = params.id;
-    const guild = GuildCache.getGuild(guild_id)!;
+    const guild_id = params.id!;
 
     const onUnlinkButtonClicked = async () => {
         try {
-            const data = await callAPI(`/guilds/${params.id}`, undefined, 'delete');
+            const data = await API.deleteGuild(guild_id);
             console.log(data);
-
-            await guild.fetch(true);
+            
+            navigate('/dashboard');
         } catch(error) {
             console.error(error);
         }
